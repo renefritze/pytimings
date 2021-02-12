@@ -6,8 +6,8 @@ PyTimings
 .. image:: https://img.shields.io/pypi/v/pytimings.svg
         :target: https://pypi.python.org/pypi/pytimings
 
-.. image:: https://img.shields.io/travis/renefritze/pytimings.svg
-        :target: https://travis-ci.com/renefritze/pytimings
+.. image:: https://github.com/WWU-AMM/pytimings/workflows/pytest/badge.svg
+        :target: https://github.com/WWU-AMM/pytimings/actions
 
 .. image:: https://readthedocs.org/projects/pytimings/badge/?version=latest
         :target: https://pytimings.readthedocs.io/en/latest/?badge=latest
