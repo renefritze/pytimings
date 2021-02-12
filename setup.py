@@ -40,7 +40,7 @@ setup(
     keywords='pytimings',
     name='pytimings',
     packages=find_packages(include=['pytimings', 'pytimings.*']),
-    url='https://github.com/renefritze/pytimings',
+    url='https://github.com/WWU-AMM/pytimings',
     version='0.1.0',
     zip_safe=False,
 )
