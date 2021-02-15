@@ -6,7 +6,7 @@ import pytest
 
 from click.testing import CliRunner
 
-from pytimings import pytimings
+from pytimings import timer
 from pytimings import cli
 
 
