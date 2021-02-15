@@ -13,17 +13,20 @@ if HAVE_MPI:
             self._comm = mpi_communicator or getCommunicator()
             self.rank = self._comm.rank
             self.size = self._comm.size
+
         def sum(self, local_value):
             lsum = self._comm.reduce(local_value, MPI.SUM)
             return lsum
+
         def max(self, local_value):
             lsum = self._comm.reduce(local_value, MPI.MAX)
             return lsum
+
     def getLocalCommunicator():
-        return mpi4py.MPI.Comm_Self
+        return MPI.COMM_SELF
 
     def getCommunicator():
-        return mpi4py.MPI.Comm_World
+        return MPI.COMM_WORLD
 
 
 else:
@@ -39,6 +42,7 @@ else:
 
         def sum(self, local_value):
             return local_value
+
         def max(self, local_value):
             return local_value
 
