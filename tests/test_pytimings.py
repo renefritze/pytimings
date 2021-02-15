@@ -1,29 +1,39 @@
 #!/usr/bin/env python
 
 """Tests for `pytimings` package."""
+import time
 
 import pytest
-
 from click.testing import CliRunner
 
-from pytimings import timer
 from pytimings import cli
 
 
+@pytest.fixture(params=(True, False))
+def use_mpi(request, monkeypatch):
+    use_mpi = request.param
+    if not use_mpi:
+        monkeypatch.delattr('mpi4py.MPI')
+
 @pytest.fixture
-def response():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
+def timings_object(request, use_mpi):
+    from pytimings.timer import Timings
+    return Timings()
 
 
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+def test_content(timings_object):
+    section = 'mysection'
+    timings_object.start(section)
+    time.sleep(0.1)
+    timings_object.stop(section)
+    timings_object.stop()
+    timings_object.output_all_measures()
+    timings_object.reset(section)
+    timings_object.reset()
+    timings_object.start(section)
+    time.sleep(0.1)
+    timings_object.stop(section)
+    timings_object.stop()
 
 
 def test_command_line_interface():

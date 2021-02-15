@@ -1,15 +1,16 @@
 """Main module."""
+import shutil
 import sys
 import time
 from contextlib import contextmanager
 
-from StringIO import StringIO
+from io import StringIO
 from collections import namedtuple, defaultdict
 from pathlib import Path
 from resource import getrusage as resource_usage, RUSAGE_SELF
 from typing import Dict, Tuple, Optional
 
-from pytimings.mpi import DEFAULT_MPI_COMM, CollectiveCommunication, getLocalCommunicator, getCommunicator
+from pytimings.mpi import CollectiveCommunication, getLocalCommunicator, getCommunicator
 from pytimings.tools import ensure_directory_exists
 
 try:
@@ -30,9 +31,14 @@ WALL_TIME = "wall"
 SYS_TIME = "sys"
 USER_TIME = "user"
 
-TimingDelta = namedtuple("TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME], defaults=[0,0,0])
+TimingDelta = namedtuple(
+    "TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME], defaults=[0, 0, 0]
+)
 
-class NoTimerError(RuntimeError): pass
+
+class NoTimerError(RuntimeError):
+    pass
+
 
 class TimingData:
     def __init__(self, name):
@@ -58,18 +64,23 @@ class TimingData:
             delta_resources, delta_times = self._get()
 
         wall = (
-            self._delta_times[WALL_TIME] - self._start_times[WALL_TIME]
+            delta_times[WALL_TIME] - self._start_times[WALL_TIME]
         ) * TO_SECONDS_FACTOR
         # kernel resource usage already is in seconds
-        return TimingDelta(wall, delta_resources.ru_stime - self._start_resources.ru_stime,
-            delta_resources.ru_utime - self._start_resources.ru_utime)
+        return TimingDelta(
+            wall,
+            delta_resources.ru_stime - self._start_resources.ru_stime,
+            delta_resources.ru_utime - self._start_resources.ru_utime,
+        )
 
 
 class Timings:
     def __init__(self):
         self._commited_deltas: Dict[str, TimingDelta] = {}
         self._output_dir = None
-        self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = defaultdict(lambda _: (False, None))
+        self._known_timers_map: Dict[
+            str, Tuple[bool, Optional[TimingData]]
+        ] = defaultdict(lambda _: (False, None))
         self._csv_sep = ","
         self.reset()
         self.set_outputdir("profiling")
@@ -90,8 +101,13 @@ class Timings:
                 self.stop(section)
             return
         if section_name not in self._known_timers_map.keys():
-            raise NoTimerError(f'Trying to stop section {section_name} for which no timer was running')
-        self._known_timers_map[section_name][0] = False # mark as not running
+            raise NoTimerError(
+                f"Trying to stop section {section_name} for which no timer was running"
+            )
+        self._known_timers_map[section_name] = (
+            False,
+            self._known_timers_map[section_name][1],
+        )  # mark as not running
         timing = self._known_timers_map[section_name][1]
         timing.stop()
         delta = timing.delta()
@@ -99,7 +115,10 @@ class Timings:
             self._commited_deltas[section_name] = delta
         else:
             previous_delta = self._commited_deltas[section_name]
-            self._commited_deltas[section_name] = tuple(map(sum, zip(delta, previous_delta)))
+            new_delta = TimingDelta(*tuple(
+                map(sum, zip(delta, previous_delta)))
+            )
+            self._commited_deltas[section_name] = new_delta
 
     def reset(self, section_name: str = None) -> None:
         """set elapsed time back to 0 for a given section or all of them if section_name is None"""
@@ -130,7 +149,7 @@ class Timings:
         rank = 0  # MPIHelper::getCollectiveCommunication().rank();
 
         filename = self._output_dir / f"{csv_base}_p{rank:08d}.csv"
-        with open(filename, 'wt') as outfile:
+        with open(filename, "wt") as outfile:
             self.output_all_measures(outfile, getLocalCommunicator())
         tmp_out = StringIO()
         # all ranks have to participate in the data generation
@@ -138,34 +157,37 @@ class Timings:
         # but only rank 0 needs to write it
         if rank == 0:
             a_filename = dir / f"{csv_base}.csv"
-            open(a_filename, 'wt').write(tmp_out);
+            open(a_filename, "wt").write(tmp_out)
 
     def output_simple(self, out=None):
         """outputs walltime only w/o MPI-rank averaging"""
         out = out or sys.stdout
         for section in self._commited_deltas.keys:
-            out.write(f'{self._csv_sep}{section}')
+            out.write(f"{self._csv_sep}{section}")
         for delta in self._commited_deltas.values():
-            out.write(f'{self._csv_sep}{delta[WALL_TIME]}')
+            out.write(f"{self._csv_sep}{delta[WALL_TIME]}")
 
     def output_all_measures(self, out=None, mpi_comm=None) -> None:
         """output all recorded measures
         * \note outputs average, min, max over all MPI processes associated to mpi_comm **/"""
         out = out or sys.stdout
         mpi_comm = mpi_comm or getCommunicator()
-        comm = CollectiveCommunication (mpi_comm)
+        comm = CollectiveCommunication(mpi_comm)
         stash = StringIO()
         sep = self._csv_sep
-        stash.write(f'threads{sep}ranks')
+        stash.write(f"threads{sep}ranks")
         for section in self._commited_deltas.keys():
-            stash.write(f'{sep}{section}_avg_usr"{sep}{section}_max_usr{sep}{section}_avg_wall{sep}{section}_max_wall{sep}{section}_avg_sys{sep}{section}_max_sys')
+            stash.write(
+                f'{sep}{section}_avg_usr{sep}{section}_max_usr{sep}{section}_avg_wall{sep}{section}_max_wall{sep}{section}_avg_sys{sep}{section}_max_sys'
+            )
 
         weight = 1 / comm.size
 
         # threadManager().max_threads() {sep} comm.size()
-        stash.write(f'\n1{sep}{comm.size}')
+        stash.write(f"\n1{sep}{comm.size}")
 
-        for  section, delta in self._commited_deltas.keys():
+        for section, delta in self._commited_deltas.items():
+            delta = delta._asdict()
             wall = delta[WALL_TIME]
             usr = delta[USER_TIME]
             syst = delta[SYS_TIME]
@@ -175,11 +197,14 @@ class Timings:
             usr_max = comm.max(usr)
             sys_sum = comm.sum(syst)
             sys_max = comm.max(syst)
-            stash.write(f'{sep}{usr_sum * weight}{sep}{usr_max}{sep}{wall_sum * weight}{sep}{wall_max}{sep}{sys_sum * weight}{sep}{sys_max}')
+            stash.write(
+                f"{sep}{usr_sum * weight}{sep}{usr_max}{sep}{wall_sum * weight}{sep}{wall_max}{sep}{sys_sum * weight}{sep}{sys_max}"
+            )
 
-        stash.write('\n')
+        stash.write("\n")
+        stash.seek(0)
         if comm.rank == 0:
-            out.write(stash)
+            shutil.copyfileobj(stash, out)
 
     def set_outputdir(self, dirname: str) -> None:
         self._output_dir = Path(dirname).resolve()
@@ -187,6 +212,7 @@ class Timings:
 
 
 global_timings = Timings()
+
 
 @contextmanager
 def scoped_timing(section_name, log_function=None, timings=None):
@@ -197,4 +223,6 @@ def scoped_timing(section_name, log_function=None, timings=None):
     finally:
         duration = timings.stop(section_name)
         if log_function:
-            log_function(f'Executing{section_name} took {duration * TO_SECONDS_FACTOR}s\n')
+            log_function(
+                f"Executing{section_name} took {duration * TO_SECONDS_FACTOR}s\n"
+            )
