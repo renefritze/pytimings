@@ -21,7 +21,7 @@ install_suggests = {'matplotlib': 'needed for error plots in demo scipts',
 doc_requires = ['sphinx>=3.3', 'matplotlib', 'python-slugify',
                 'sphinx-material',
                 'sphinx-autoapi>=1.7'] + install_requires
-ci_requires = ['pytest', 'pytest-cov', 'pytest-xdist', 'check-manifest', 
+ci_requires = ['pytest', 'pytest-cov', 'pytest-xdist', 'check-manifest', 'black',
                'readme_renderer[md]', 'rstcheck', 'codecov', 'twine', 'pytest-memprof', 'pytest-timeout', 
                'docutils', ]
 # these don't go into the pip extras
