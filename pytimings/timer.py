@@ -138,7 +138,7 @@ class Timings:
 
     def delta(self, section_name: str) -> Dict[str, int]:
         """get the full delta dict"""
-        return self.delta(section_name)
+        return self._commited_deltas[section_name]
 
     def output_per_rank(self, csv_base: str) -> None:
         """

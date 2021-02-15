@@ -7,6 +7,7 @@ import pytest
 from click.testing import CliRunner
 
 from pytimings import cli
+from pytimings.timer import scoped_timing
 
 
 @pytest.fixture(params=(True, False))
@@ -21,19 +22,39 @@ def timings_object(request, use_mpi):
     return Timings()
 
 
+DUMMY_SECTION = 'mysection'
+
 def test_content(timings_object):
-    section = 'mysection'
-    timings_object.start(section)
+    timings_object.start(DUMMY_SECTION)
     time.sleep(0.1)
-    timings_object.stop(section)
+    timings_object.stop(DUMMY_SECTION)
     timings_object.stop()
     timings_object.output_all_measures()
-    timings_object.reset(section)
+    timings_object.reset(DUMMY_SECTION)
     timings_object.reset()
-    timings_object.start(section)
+    timings_object.start(DUMMY_SECTION)
     time.sleep(0.1)
-    timings_object.stop(section)
+    timings_object.stop(DUMMY_SECTION)
     timings_object.stop()
+    timings_object.output_all_measures()
+
+def test_context(timings_object):
+    timings_object.start(DUMMY_SECTION)
+    time.sleep(0.1)
+    timings_object.stop(DUMMY_SECTION)
+    delta_before = timings_object.delta(DUMMY_SECTION)
+    with scoped_timing(DUMMY_SECTION, timings=timings_object):
+        time.sleep(0.1)
+    delta_after = timings_object.delta(DUMMY_SECTION)
+    assert delta_after.wall > delta_before.wall
+
+    # use the global timings object default
+    delta_before = timings_object.delta(DUMMY_SECTION)
+    with scoped_timing(DUMMY_SECTION):
+        time.sleep(0.1)
+    delta_after = timings_object.delta(DUMMY_SECTION)
+    assert delta_after == delta_before
+
 
 
 def test_command_line_interface():
