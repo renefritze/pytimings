@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """The setup script."""
 
@@ -7,15 +7,17 @@ from setuptools import setup, find_packages
 with open('README.rst') as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
+import dependencies
 
-requirements = ['Click>=7.0', ]
+tests_require = dependencies.ci_requires
+install_requires = dependencies.install_requires
+setup_requires = dependencies.setup_requires()
+install_suggests = dependencies.install_suggests
 
 setup(
     author="René Fritze",
     author_email='coding@fritze.me',
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
@@ -33,7 +35,9 @@ setup(
             'pytimings=pytimings.cli:main',
         ],
     },
-    install_requires=requirements,
+    tests_require=tests_require,
+    install_requires=install_requires,
+    extras_require = dependencies.extras(),
     license="BSD license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
