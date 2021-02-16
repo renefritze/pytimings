@@ -5,12 +5,12 @@ import os
 import pandas_common as pc
 
 common_string = pc.common_substring(sys.argv[1:])
-merged = 'merged_{}.csv'.format(common_string)
+merged = "merged_{}.csv".format(common_string)
 
-baseline_name = 'fem.apply'
+baseline_name = "fem.apply"
 
 header, current = pc.read_files(sys.argv[1:])
-headerlist = header['profiler']
+headerlist = header["profiler"]
 current = pc.sorted_f(current, True)
 current = pc.speedup(headerlist, current, baseline_name)
 # pprint(t_sections)

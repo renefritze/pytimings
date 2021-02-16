@@ -13,20 +13,24 @@ USE_MPI = [False]
 if mpi.HAVE_MPI:
     USE_MPI.append(True)
 
+
 @pytest.fixture(params=USE_MPI)
 def use_mpi(request, monkeypatch):
     use_mpi = request.param
     if (not use_mpi) and mpi.HAVE_MPI:
-        monkeypatch.delattr('mpi4py.MPI')
-        monkeypatch.setattr('pytimings.mpi.HAVE_MPI', False)
+        monkeypatch.delattr("mpi4py.MPI")
+        monkeypatch.setattr("pytimings.mpi.HAVE_MPI", False)
+
 
 @pytest.fixture
 def timings_object(request, use_mpi):
     from pytimings.timer import Timings
+
     return Timings()
 
 
-DUMMY_SECTION = 'mysection'
+DUMMY_SECTION = "mysection"
+
 
 def test_content(timings_object):
     timings_object.start(DUMMY_SECTION)
@@ -41,6 +45,7 @@ def test_content(timings_object):
     timings_object.stop(DUMMY_SECTION)
     timings_object.stop()
     timings_object.output_all_measures()
+
 
 def test_context(timings_object):
     timings_object.start(DUMMY_SECTION)
@@ -60,13 +65,12 @@ def test_context(timings_object):
     assert delta_after == delta_before
 
 
-
 def test_command_line_interface():
     """Test the CLI."""
     runner = CliRunner()
     result = runner.invoke(cli.main)
     assert result.exit_code == 0
-    assert 'pytimings.cli.main' in result.output
-    help_result = runner.invoke(cli.main, ['--help'])
+    assert "pytimings.cli.main" in result.output
+    help_result = runner.invoke(cli.main, ["--help"])
     assert help_result.exit_code == 0
-    assert '--help  Show this message and exit.' in help_result.output
+    assert "--help  Show this message and exit." in help_result.output

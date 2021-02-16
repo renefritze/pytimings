@@ -10,7 +10,11 @@ from pathlib import Path
 from psutil import cpu_times
 from typing import Dict, Tuple, Optional
 
-from pytimings.mpi import get_communication_wrapper, get_local_communicator, get_communicator
+from pytimings.mpi import (
+    get_communication_wrapper,
+    get_local_communicator,
+    get_communicator,
+)
 from pytimings.tools import ensure_directory_exists
 
 try:
@@ -116,9 +120,7 @@ class Timings:
             self._commited_deltas[section_name] = delta
         else:
             previous_delta = self._commited_deltas[section_name]
-            new_delta = TimingDelta(*tuple(
-                map(sum, zip(delta, previous_delta)))
-            )
+            new_delta = TimingDelta(*tuple(map(sum, zip(delta, previous_delta))))
             self._commited_deltas[section_name] = new_delta
 
     def reset(self, section_name: str = None) -> None:
@@ -179,7 +181,7 @@ class Timings:
         stash.write(f"threads{sep}ranks")
         for section in self._commited_deltas.keys():
             stash.write(
-                f'{sep}{section}_avg_usr{sep}{section}_max_usr{sep}{section}_avg_wall{sep}{section}_max_wall{sep}{section}_avg_sys{sep}{section}_max_sys'
+                f"{sep}{section}_avg_usr{sep}{section}_max_usr{sep}{section}_avg_wall{sep}{section}_max_wall{sep}{section}_avg_sys{sep}{section}_max_sys"
             )
 
         weight = 1 / comm.size
