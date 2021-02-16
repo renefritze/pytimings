@@ -13,6 +13,7 @@ USE_MPI = [False]
 if mpi.HAVE_MPI:
     USE_MPI.append(True)
 
+
 @pytest.fixture(params=USE_MPI)
 def use_mpi(request, monkeypatch):
     use_mpi = request.param
@@ -20,13 +21,16 @@ def use_mpi(request, monkeypatch):
         monkeypatch.delattr('mpi4py.MPI')
         monkeypatch.setattr('pytimings.mpi.HAVE_MPI', False)
 
+
 @pytest.fixture
 def timings_object(request, use_mpi):
     from pytimings.timer import Timings
+
     return Timings()
 
 
 DUMMY_SECTION = 'mysection'
+
 
 def test_content(timings_object):
     timings_object.start(DUMMY_SECTION)
@@ -41,6 +45,7 @@ def test_content(timings_object):
     timings_object.stop(DUMMY_SECTION)
     timings_object.stop()
     timings_object.output_all_measures()
+
 
 def test_context(timings_object):
     timings_object.start(DUMMY_SECTION)
@@ -58,7 +63,6 @@ def test_context(timings_object):
         time.sleep(0.1)
     delta_after = timings_object.delta(DUMMY_SECTION)
     assert delta_after == delta_before
-
 
 
 def test_command_line_interface():

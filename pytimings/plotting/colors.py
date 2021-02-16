@@ -3,6 +3,7 @@
 
 import matplotlib as mpl
 
+
 def getHueVector(amount):
     level = 0
     while (1 << level) < amount:
@@ -50,11 +51,13 @@ def getColourPalette(size):
         # cannot be divided integer by it
 
         if i % bisectionlimit == 0:
-            satvalbifurcatepos = satvalbifurcatepos % ( len(satvalsplittings) - 1 )
+            satvalbifurcatepos = satvalbifurcatepos % (len(satvalsplittings) - 1)
             toinsert = satvalbifurcatepos + 1
-            satvalsplittings.insert(toinsert, (
-            satvalsplittings[satvalbifurcatepos] - satvalsplittings[satvalbifurcatepos + 1] ) / 2 + satvalsplittings[
-                                        satvalbifurcatepos + 1])
+            satvalsplittings.insert(
+                toinsert,
+                (satvalsplittings[satvalbifurcatepos] - satvalsplittings[satvalbifurcatepos + 1]) / 2
+                + satvalsplittings[satvalbifurcatepos + 1],
+            )
             satvalbifurcatepos += 2
 
         if switccolors == 1:
@@ -79,10 +82,12 @@ def contrast_ratio(color_a, color_b):
         if index < 0.03928:
             return index / 12.92
         else:
-            return ( ( index + 0.055 ) / 1.055 ) ** 2.4
+            return ((index + 0.055) / 1.055) ** 2.4
+
     def _rel(rgb):
-        return 0.2126 * _lum(rgb[0]) + 0.7152 * _lum(rgb[1]) + 0.0722 * _lum(rgb[2]) 
-    return ( _rel(color_a) + 0.05 ) / ( _rel(color_b) + 0.05 )
+        return 0.2126 * _lum(rgb[0]) + 0.7152 * _lum(rgb[1]) + 0.0722 * _lum(rgb[2])
+
+    return (_rel(color_a) + 0.05) / (_rel(color_b) + 0.05)
 
 
 def getColourPaletteCheat(size, filter_colors=None, bg_color=(1, 1, 1)):
@@ -103,11 +108,12 @@ def discrete_cmap(count, bg_color=(255, 255, 255)):
     mpl.cm.register_cmap(cmap=cmap)
     return cmap
 
+
 if __name__ == '__main__':
     # k = getColourPalette( 9 )
-    #print k
-    #k = set(k)
-    #print k
+    # print k
+    # k = set(k)
+    # print k
     print(getColourPalette(4))
     print(getColourPaletteCheat(4))
     print(getColourPaletteCheat(4, [(0.0, 0, 0.0)]))

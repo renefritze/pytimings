@@ -5,6 +5,7 @@
 from setuptools import setup, find_packages
 import sys
 import os
+
 sys.path.append(os.path.dirname(__file__))
 import dependencies
 
@@ -40,7 +41,7 @@ setup(
     },
     tests_require=tests_require,
     install_requires=install_requires,
-    extras_require = dependencies.extras(),
+    extras_require=dependencies.extras(),
     license="BSD license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,

@@ -32,9 +32,7 @@ SYS_TIME = "sys"
 USER_TIME = "user"
 IDLE_TIME = "idle"
 
-TimingDelta = namedtuple(
-    "TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME], defaults=[0, 0, 0]
-)
+TimingDelta = namedtuple("TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME], defaults=[0, 0, 0])
 
 
 class NoTimerError(RuntimeError):
@@ -64,9 +62,7 @@ class TimingData:
     def delta(self):
         delta_times = self._end_times or self._get()
 
-        wall = (
-            delta_times[WALL_TIME] - self._start_times[WALL_TIME]
-        ) * TO_SECONDS_FACTOR
+        wall = (delta_times[WALL_TIME] - self._start_times[WALL_TIME]) * TO_SECONDS_FACTOR
         # kernel resource usage already is in seconds
         return TimingDelta(
             wall,
@@ -79,9 +75,7 @@ class Timings:
     def __init__(self):
         self._commited_deltas: Dict[str, TimingDelta] = {}
         self._output_dir = None
-        self._known_timers_map: Dict[
-            str, Tuple[bool, Optional[TimingData]]
-        ] = defaultdict(lambda _: (False, None))
+        self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = defaultdict(lambda _: (False, None))
         self._csv_sep = ","
         self.reset()
         self.set_outputdir("profiling")
@@ -102,9 +96,7 @@ class Timings:
                 self.stop(section)
             return
         if section_name not in self._known_timers_map.keys():
-            raise NoTimerError(
-                f"Trying to stop section {section_name} for which no timer was running"
-            )
+            raise NoTimerError(f"Trying to stop section {section_name} for which no timer was running")
         self._known_timers_map[section_name] = (
             False,
             self._known_timers_map[section_name][1],
@@ -116,9 +108,7 @@ class Timings:
             self._commited_deltas[section_name] = delta
         else:
             previous_delta = self._commited_deltas[section_name]
-            new_delta = TimingDelta(*tuple(
-                map(sum, zip(delta, previous_delta)))
-            )
+            new_delta = TimingDelta(*tuple(map(sum, zip(delta, previous_delta))))
             self._commited_deltas[section_name] = new_delta
 
     def reset(self, section_name: str = None) -> None:
@@ -224,6 +214,4 @@ def scoped_timing(section_name, log_function=None, timings=None):
     finally:
         duration = timings.stop(section_name)
         if log_function:
-            log_function(
-                f"Executing{section_name} took {duration * TO_SECONDS_FACTOR}s\n"
-            )
+            log_function(f"Executing{section_name} took {duration * TO_SECONDS_FACTOR}s\n")
