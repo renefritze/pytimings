@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from io import StringIO
 from collections import namedtuple, defaultdict
 from pathlib import Path
-from resource import getrusage as resource_usage, RUSAGE_SELF
+from psutil import cpu_times
 from typing import Dict, Tuple, Optional
 
 from pytimings.mpi import get_communication_wrapper, get_local_communicator, get_communicator
@@ -30,6 +30,7 @@ THREAD_TIME = "thread"
 WALL_TIME = "wall"
 SYS_TIME = "sys"
 USER_TIME = "user"
+IDLE_TIME = "idle"
 
 TimingDelta = namedtuple(
     "TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME], defaults=[0, 0, 0]
@@ -45,23 +46,23 @@ class TimingData:
         self.name = name
         self._end_resources = None
         self._end_times = None
-        self._start_resources, self._start_times = self._get()
+        self._start_times = self._get()
 
     def _get(self):
-        return resource_usage(RUSAGE_SELF), {
+        ps_times = cpu_times()
+        return {
+            USER_TIME: ps_times.user,
+            SYS_TIME: ps_times.system,
+            IDLE_TIME: ps_times.idle,
             WALL_TIME: PERF_COUNTER_FUNCTION(),
             THREAD_TIME: THREAD_TIME_FUNCTION(),
         }
 
     def stop(self):
-        self._end_resources, self._end_times = self._get()
+        self._end_times = self._get()
 
     def delta(self):
-        if self._end_times:
-            delta_resources = self._start_resources
-            delta_times = self._end_times
-        else:
-            delta_resources, delta_times = self._get()
+        delta_times = self._end_times or self._get()
 
         wall = (
             delta_times[WALL_TIME] - self._start_times[WALL_TIME]
@@ -69,8 +70,8 @@ class TimingData:
         # kernel resource usage already is in seconds
         return TimingDelta(
             wall,
-            delta_resources.ru_stime - self._start_resources.ru_stime,
-            delta_resources.ru_utime - self._start_resources.ru_utime,
+            delta_times[SYS_TIME] - self._start_times[SYS_TIME],
+            delta_times[USER_TIME] - self._start_times[USER_TIME],
         )
 
 
