@@ -17,7 +17,7 @@ def setup_requires():
 # Qt bindings selectors are a woraround for https://bugreports.qt.io/browse/QTBUG-88688
 install_requires = ['packaging', 'typer'] + setup_requires()
 install_suggests = {'matplotlib': 'needed for error plots in demo scipts',
-                    }
+                    'mpi4py': 'needed for global data operations'}
 doc_requires = ['sphinx>=3.3', 'matplotlib', 'python-slugify',
                 'sphinx-material',
                 'sphinx-autoapi>=1.7'] + install_requires

@@ -6,15 +6,19 @@ import time
 import pytest
 from click.testing import CliRunner
 
-from pytimings import cli
+from pytimings import cli, mpi
 from pytimings.timer import scoped_timing
 
+USE_MPI = [False]
+if mpi.HAVE_MPI:
+    USE_MPI.append(True)
 
-@pytest.fixture(params=(True, False))
+@pytest.fixture(params=USE_MPI)
 def use_mpi(request, monkeypatch):
     use_mpi = request.param
-    if not use_mpi:
+    if (not use_mpi) and mpi.HAVE_MPI:
         monkeypatch.delattr('mpi4py.MPI')
+        monkeypatch.setattr('pytimings.mpi.HAVE_MPI', False)
 
 @pytest.fixture
 def timings_object(request, use_mpi):

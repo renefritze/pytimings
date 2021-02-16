@@ -10,7 +10,7 @@ from pathlib import Path
 from resource import getrusage as resource_usage, RUSAGE_SELF
 from typing import Dict, Tuple, Optional
 
-from pytimings.mpi import CollectiveCommunication, getLocalCommunicator, getCommunicator
+from pytimings.mpi import get_communication_wrapper, get_local_communicator, get_communicator
 from pytimings.tools import ensure_directory_exists
 
 try:
@@ -145,15 +145,15 @@ class Timings:
              creates one file local to each MPI-rank (no global averaging)
         *  one single rank-0 file with all combined/averaged measures
         """
-        communication = CollectiveCommunication
-        rank = 0  # MPIHelper::getCollectiveCommunication().rank();
+        communication = get_communication_wrapper()
+        rank = communication.rank
 
         filename = self._output_dir / f"{csv_base}_p{rank:08d}.csv"
         with open(filename, "wt") as outfile:
-            self.output_all_measures(outfile, getLocalCommunicator())
+            self.output_all_measures(outfile, get_local_communicator())
         tmp_out = StringIO()
         # all ranks have to participate in the data generation
-        self.output_all_measures(tmp_out, getCommunicator())
+        self.output_all_measures(tmp_out, get_communicator())
         # but only rank 0 needs to write it
         if rank == 0:
             a_filename = dir / f"{csv_base}.csv"
@@ -171,8 +171,8 @@ class Timings:
         """output all recorded measures
         * \note outputs average, min, max over all MPI processes associated to mpi_comm **/"""
         out = out or sys.stdout
-        mpi_comm = mpi_comm or getCommunicator()
-        comm = CollectiveCommunication(mpi_comm)
+        mpi_comm = mpi_comm or get_communicator()
+        comm = get_communication_wrapper(mpi_comm)
         stash = StringIO()
         sep = self._csv_sep
         stash.write(f"threads{sep}ranks")
