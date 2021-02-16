@@ -3,16 +3,20 @@
 """The setup script."""
 
 from setuptools import setup, find_packages
-
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
-
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
 import dependencies
 
 tests_require = dependencies.ci_requires
 install_requires = dependencies.install_requires
 setup_requires = dependencies.setup_requires()
 install_suggests = dependencies.install_suggests
+
+with open('README.rst') as readme_file:
+    readme = readme_file.read()
+with open('HISTORY.rst') as history_file:
+    history = history_file.read()
 
 setup(
     author="René Fritze",
