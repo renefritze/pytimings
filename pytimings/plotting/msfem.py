@@ -15,9 +15,15 @@ speedup = pc.speedup(headerlist, current, baseline_name)
 # pprint(t_sections)
 pc.plot_msfem(speedup, merged, original=current)
 try:
-    pc.plot_error(speedup, merged, ['msfem_exactH1s', 'msfem_exact_L2'],
-              'grids.macro_cells_per_dim',['$H^1_s$', '$L^2$', 'walltime'], baseline_name,
-              logy_base=10)
+    pc.plot_error(
+        speedup,
+        merged,
+        ['msfem_exactH1s', 'msfem_exact_L2'],
+        'grids.macro_cells_per_dim',
+        ['$H^1_s$', '$L^2$', 'walltime'],
+        baseline_name,
+        logy_base=10,
+    )
 except KeyError:
     logging.error('No error data')
 speedup.transpose().to_csv(merged)

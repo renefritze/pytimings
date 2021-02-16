@@ -7,6 +7,7 @@ import matplotlib as mpl
 
 import pandas_common as pc
 
+
 def plot_mlmc(current, filename_base):
     all = ['mlmc.all', 'fem.apply', 'msfem.Elliptic_MsFEM_Solver.apply']
     all_labels = ['Overall', 'CgFem', 'MsFem', 'Ideal']
@@ -15,6 +16,7 @@ def plot_mlmc(current, filename_base):
         cat, labels = tpl
         ycols = ['{}_avg_wall_speedup'.format(v) for v in cat] + ['ideal_speedup']
         pc.plot_common(current, '{}_{}'.format(pref, filename_base), ycols, labels)
+
 
 common_string = pc.common_substring(sys.argv[1:])
 merged = 'merged_{}.csv'.format(common_string)
