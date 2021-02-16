@@ -48,6 +48,6 @@ setup(
     name='pytimings',
     packages=find_packages(include=['pytimings', 'pytimings.*']),
     url='https://github.com/WWU-AMM/pytimings',
-    version='0.1.0',
+    version='0.1.1',
     zip_safe=False,
 )
