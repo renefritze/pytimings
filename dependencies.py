@@ -61,6 +61,10 @@ def extras():
     }
 
 toml_tpl = '''
+[tool.black]
+line-length = 120
+skip-string-normalization = true
+
 [build-system]
 requires = {0}
 build-backend = "setuptools.build_meta"
