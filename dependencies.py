@@ -3,18 +3,9 @@
 # DO NOT use any python features here that require 3.6 or newer
 
 def setup_requires():
-    NUMPY = '1.16.0'
-    # numpy versions with filters according to minimal version with a wheel
-    numpys = ['numpy>={};python_version <= "3.6"'.format(NUMPY),
-      'numpy>=1.15.4;python_version == "3.7"',
-      'numpy>=1.17.5;python_version == "3.8"',
-      'numpy>=1.19.4;python_version >= "3.9"']
-    scipys = ['scipy>=1.1;python_version < "3.8"','scipy>=1.3.3;python_version == "3.8"', 'scipy>=1.5.4;python_version >= "3.9"']
     # setuptools pin in accordance with numpy: https://github.com/numpy/numpy/pull/17000, see also https://github.com/pypa/setuptools/pull/2260 https://github.com/pypa/setuptools/pull/2259
-    other = ['setuptools>=40.8.0,<49.2.0', 'wheel', 'pytest-runner>=2.9', 'packaging',]
-    return numpys + other + scipys
+    return ['setuptools>=40.8.0,<49.2.0', 'wheel', 'pytest-runner>=2.9', 'packaging',]
 
-# Qt bindings selectors are a woraround for https://bugreports.qt.io/browse/QTBUG-88688
 install_requires = ['packaging', 'typer'] + setup_requires()
 install_suggests = {'matplotlib': 'needed for error plots in demo scipts',
                     'mpi4py': 'needed for global data operations'}
@@ -63,11 +54,10 @@ def extras():
 
     # blocklisted packages need a (minimal) compiler setup
     # - nbresuse, pytest-memprof depend on psutil which has no wheels
-    # - slycot directly needs a compiler setup with BLAS, plus scikit-build + cmake
-    # - pymess is better installed from source (see README.md)
     return {
         'ci':  ci_requires,
         'docs': doc_requires,
+        'full': list(install_suggests.keys())+ci_requires+doc_requires,
     }
 
 toml_tpl = '''
