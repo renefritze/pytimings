@@ -4,7 +4,7 @@
 
 def setup_requires():
     # setuptools pin in accordance with numpy: https://github.com/numpy/numpy/pull/17000, see also https://github.com/pypa/setuptools/pull/2260 https://github.com/pypa/setuptools/pull/2259
-    return ['setuptools>=40.8.0,<49.2.0', 'wheel', 'pytest-runner>=2.9', 'packaging',]
+    return ['psutil', 'setuptools>=40.8.0,<49.2.0', 'wheel', 'pytest-runner>=2.9', 'packaging',]
 
 install_requires = ['packaging', 'typer'] + setup_requires()
 install_suggests = {'matplotlib': 'needed for error plots in demo scipts',
