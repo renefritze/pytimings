@@ -32,7 +32,17 @@ jobs:
             - name: Install dependencies
               run: |
                   python -m pip install --upgrade pip
-                  python -m pip install -r requirements-optional.txt
+                  python -m pip install .[ci]
+            - name: Install MPI
+              if: "contains(matrix.config.os, 'ubuntu')"
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y mpi-default-dev
+                  pip install mpi4py
             - name: run pytest
               run: |
                   pytest
+            - name: build docs
+              run: |
+                  python -m pip install .[docs]
+                  make -C docs html
