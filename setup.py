@@ -8,6 +8,7 @@ import os
 
 sys.path.append(os.path.dirname(__file__))
 import dependencies
+import versioneer
 
 tests_require = dependencies.ci_requires
 install_requires = dependencies.install_requires
@@ -49,6 +50,7 @@ setup(
     name='pytimings',
     packages=find_packages(include=['pytimings', 'pytimings.*']),
     url='https://github.com/WWU-AMM/pytimings',
-    version='0.2.0',
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     zip_safe=False,
 )
