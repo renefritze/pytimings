@@ -44,7 +44,7 @@ setup(
     install_requires=install_requires,
     extras_require=dependencies.extras(),
     license="BSD license",
-    long_description=readme + '\n\n' + history,
+    long_description=readme + '\n\n' + history + '\n\n',
     include_package_data=True,
     keywords='pytimings',
     name='pytimings',
