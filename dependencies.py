@@ -32,6 +32,8 @@ ci_requires = [
     'pytest-xdist',
     'check-manifest',
     'black',
+    'pre-commit',
+    'autopep8',
     'pytest-pycharm',
     'readme_renderer[md]',
     'rstcheck',
