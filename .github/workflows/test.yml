@@ -53,6 +53,11 @@ jobs:
                   msmpisetup.exe -unattend -minimal
                   pip install mpi4py
               shell: cmd
+            - name: Install MPI (osx)
+              if: "contains(matrix.config.os, 'macOS')"
+              run: |
+                  brew install openmpi
+                  pip install mpi4py
             - name: run pytest
               run: |
                   pytest
