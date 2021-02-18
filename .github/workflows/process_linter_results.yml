@@ -44,7 +44,7 @@ jobs:
         run: |
           cat ./flake8.out | lintly --fail-on=new \
             --use-checks \
-            --exit-0 \
+            --exit-zero \
             --no-post-status \
             --pr="$(cat ./pr_number)" \
             --commit-sha="$(cat ./head_sha)"
