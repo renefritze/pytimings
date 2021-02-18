@@ -43,6 +43,9 @@ jobs:
       - name: 'Comment on PR'
         run: |
           cat ./flake8.out | lintly --fail-on=new \
+            --use-checks \
+            --exit-0 \
+            --no-post-status \
             --pr="$(cat ./pr_number)" \
             --commit-sha="$(cat ./head_sha)"
         env:
