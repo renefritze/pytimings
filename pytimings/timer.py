@@ -35,8 +35,12 @@ IDLE_TIME = "idle"
 TimingDelta = namedtuple("TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME], defaults=[0, 0, 0])
 
 
-class NoTimerError(RuntimeError):
-    pass
+class NoTimerError(Exception):
+    def __init__(self, section, timings=None):
+        self.section = section
+        self.timings = timings or global_timings
+        avail = 'Available sections: ' + ','.join(self.timings._known_timers_map.keys())
+        super().__init__(f"trying to access timer for unknown section '{section}'\n{avail}")
 
 
 class TimingData:
@@ -96,7 +100,7 @@ class Timings:
                 self.stop(section)
             return
         if section_name not in self._known_timers_map.keys():
-            raise NoTimerError(f"Trying to stop section {section_name} for which no timer was running")
+            raise NoTimerError(section_name, self)
         self._known_timers_map[section_name] = (
             False,
             self._known_timers_map[section_name][1],
@@ -110,6 +114,7 @@ class Timings:
             previous_delta = self._commited_deltas[section_name]
             new_delta = TimingDelta(*tuple(map(sum, zip(delta, previous_delta))))
             self._commited_deltas[section_name] = new_delta
+        return self._commited_deltas[section_name]
 
     def reset(self, section_name: str = None) -> None:
         """set elapsed time back to 0 for a given section or all of them if section_name is None"""
@@ -129,7 +134,10 @@ class Timings:
 
     def delta(self, section_name: str) -> Dict[str, int]:
         """get the full delta dict"""
-        return self._commited_deltas[section_name]
+        try:
+            return self._commited_deltas[section_name]
+        except KeyError:
+            raise NoTimerError(section_name, self)
 
     def output_per_rank(self, csv_base: str) -> None:
         """
@@ -212,6 +220,6 @@ def scoped_timing(section_name, log_function=None, timings=None):
     try:
         yield
     finally:
-        duration = timings.stop(section_name)
+        delta = timings.stop(section_name)
         if log_function:
-            log_function(f"Executing{section_name} took {duration * TO_SECONDS_FACTOR}s\n")
+            log_function(f"Executing {section_name} took {delta.wall * TO_SECONDS_FACTOR}s\n")
