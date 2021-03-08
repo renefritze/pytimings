@@ -40,6 +40,8 @@ ci_requires = [
     'codecov',
     'twine',
     'pytest-memprof',
+    'pytest-regressions',
+    'pytest-datadir',
     'pytest-timeout',
     'docutils',
 ]
