@@ -75,14 +75,16 @@ class TimingData:
         )
 
 
+def _default_timer_dict_entry():
+    return (False, None)
+
+
 class Timings:
     def __init__(self):
         self._commited_deltas: Dict[str, TimingDelta] = {}
-        self._output_dir = None
-        self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = defaultdict(lambda _: (False, None))
+        self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = defaultdict(_default_timer_dict_entry)
         self._csv_sep = ","
         self.reset()
-        self.set_outputdir("profiling")
 
     def start(self, section_name: str) -> None:
         """set this to begin a named section"""
@@ -139,7 +141,7 @@ class Timings:
         except KeyError:
             raise NoTimerError(section_name, self)
 
-    def output_per_rank(self, csv_base: str) -> None:
+    def output_per_rank(self, output_dir: Path, csv_base: str) -> None:
         """
              creates one file local to each MPI-rank (no global averaging)
         *  one single rank-0 file with all combined/averaged measures
@@ -147,7 +149,8 @@ class Timings:
         communication = get_communication_wrapper()
         rank = communication.rank
 
-        filename = self._output_dir / f"{csv_base}_p{rank:08d}.csv"
+        ensure_directory_exists(output_dir)
+        filename = output_dir / f"{csv_base}_p{rank:08d}.csv"
         with open(filename, "wt") as outfile:
             self.output_all_measures(outfile, get_local_communicator())
         tmp_out = StringIO()
@@ -155,8 +158,9 @@ class Timings:
         self.output_all_measures(tmp_out, get_communicator())
         # but only rank 0 needs to write it
         if rank == 0:
-            a_filename = dir / f"{csv_base}.csv"
-            open(a_filename, "wt").write(tmp_out)
+            a_filename = output_dir / f"{csv_base}.csv"
+            tmp_out.seek(0)
+            open(a_filename, "wt").write(tmp_out.read())
 
     def output_simple(self, out=None):
         """outputs walltime only w/o MPI-rank averaging"""
@@ -204,10 +208,6 @@ class Timings:
         stash.seek(0)
         if comm.rank == 0:
             shutil.copyfileobj(stash, out)
-
-    def set_outputdir(self, dirname: str) -> None:
-        self._output_dir = Path(dirname).resolve()
-        ensure_directory_exists(self._output_dir)
 
 
 global_timings = Timings()
