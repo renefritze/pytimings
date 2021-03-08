@@ -1,67 +1,69 @@
 #!/usr/bin/env python
 
 """Tests for `pytimings` package."""
+import pickle
 import time
+from functools import partial
+from tempfile import TemporaryFile
 
-import pytest
 from click.testing import CliRunner
 
 from pytimings import cli, mpi
 from pytimings.timer import scoped_timing
-
-USE_MPI = [False]
-if mpi.HAVE_MPI:
-    USE_MPI.append(True)
+from .fixtures import timings_object, use_mpi, pickled_timings_object
 
 
-@pytest.fixture(params=USE_MPI)
-def use_mpi(request, monkeypatch):
-    use_mpi = request.param
-    if (not use_mpi) and mpi.HAVE_MPI:
-        monkeypatch.delattr('mpi4py.MPI')
-        monkeypatch.setattr('pytimings.mpi.HAVE_MPI', False)
-
-
-@pytest.fixture
-def timings_object(request, use_mpi):
-    from pytimings.timer import Timings
-
-    return Timings()
-
-
-DUMMY_SECTION = 'mysection'
+_DUMMY_SECTION = 'mysection'
 
 
 def test_content(timings_object):
-    timings_object.start(DUMMY_SECTION)
+    timings_object.start(_DUMMY_SECTION)
     time.sleep(0.1)
-    timings_object.stop(DUMMY_SECTION)
+    timings_object.stop(_DUMMY_SECTION)
     timings_object.stop()
     timings_object.output_all_measures()
-    timings_object.reset(DUMMY_SECTION)
+    timings_object.reset(_DUMMY_SECTION)
     timings_object.reset()
-    timings_object.start(DUMMY_SECTION)
+    timings_object.start(_DUMMY_SECTION)
     time.sleep(0.1)
-    timings_object.stop(DUMMY_SECTION)
+    timings_object.stop(_DUMMY_SECTION)
     timings_object.stop()
     timings_object.output_all_measures()
+
+
+def test_nesting(timings_object):
+    scope = partial(scoped_timing, timings=timings_object)
+    with scope("root_section"):
+        time.sleep(0.1)
+        with scope("root_section.nested_1"):
+            time.sleep(0.2)
+            with scope("root_section.nested_1.leaf_section"):
+                time.sleep(0.3)
+
+
+def test_pickling(pickled_timings_object):
+    with TemporaryFile() as out:
+        dump = partial(pickle.dump, pickled_timings_object, out)
+        dump(protocol=0)
+        dump(protocol=pickle.HIGHEST_PROTOCOL)
+        dump(protocol=pickle.DEFAULT_PROTOCOL)
 
 
 def test_context(timings_object):
-    timings_object.start(DUMMY_SECTION)
+    timings_object.start(_DUMMY_SECTION)
     time.sleep(0.1)
-    timings_object.stop(DUMMY_SECTION)
-    delta_before = timings_object.delta(DUMMY_SECTION)
-    with scoped_timing(DUMMY_SECTION, timings=timings_object):
+    timings_object.stop(_DUMMY_SECTION)
+    delta_before = timings_object.delta(_DUMMY_SECTION)
+    with scoped_timing(_DUMMY_SECTION, timings=timings_object):
         time.sleep(0.1)
-    delta_after = timings_object.delta(DUMMY_SECTION)
+    delta_after = timings_object.delta(_DUMMY_SECTION)
     assert delta_after.wall > delta_before.wall
 
     # use the global timings object default
-    delta_before = timings_object.delta(DUMMY_SECTION)
-    with scoped_timing(DUMMY_SECTION):
+    delta_before = timings_object.delta(_DUMMY_SECTION)
+    with scoped_timing(_DUMMY_SECTION):
         time.sleep(0.1)
-    delta_after = timings_object.delta(DUMMY_SECTION)
+    delta_after = timings_object.delta(_DUMMY_SECTION)
     assert delta_after == delta_before
 
 
