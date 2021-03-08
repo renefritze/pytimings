@@ -161,6 +161,7 @@ class Timings:
             a_filename = output_dir / f"{csv_base}.csv"
             tmp_out.seek(0)
             open(a_filename, "wt").write(tmp_out.read())
+            return a_filename
 
     def output_simple(self, out=None):
         """outputs walltime only w/o MPI-rank averaging"""
