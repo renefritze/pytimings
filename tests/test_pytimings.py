@@ -15,18 +15,23 @@ from .fixtures import timings_object, use_mpi, pickled_timings_object
 
 _DUMMY_SECTION = 'mysection'
 
+DEFAULT_SLEEP_SECONDS = 0.1
+default_sleep = partial(time.sleep, DEFAULT_SLEEP_SECONDS)
+
 
 def test_content(timings_object):
     timings_object.start(_DUMMY_SECTION)
-    time.sleep(0.1)
-    timings_object.stop(_DUMMY_SECTION)
+    default_sleep()
+    slept = timings_object.stop(_DUMMY_SECTION)
+    assert slept.wall >= DEFAULT_SLEEP_SECONDS
     timings_object.stop()
     timings_object.output_all_measures()
     timings_object.reset(_DUMMY_SECTION)
     timings_object.reset()
     timings_object.start(_DUMMY_SECTION)
-    time.sleep(0.1)
-    timings_object.stop(_DUMMY_SECTION)
+    default_sleep()
+    slept = timings_object.stop(_DUMMY_SECTION)
+    assert 2 * DEFAULT_SLEEP_SECONDS > slept.wall >= DEFAULT_SLEEP_SECONDS
     timings_object.stop()
     timings_object.output_all_measures()
 
@@ -34,11 +39,17 @@ def test_content(timings_object):
 def test_nesting(timings_object):
     scope = partial(scoped_timing, timings=timings_object)
     with scope("root_section"):
-        time.sleep(0.1)
+        default_sleep()
         with scope("root_section.nested_1"):
-            time.sleep(0.2)
+            default_sleep()
             with scope("root_section.nested_1.leaf_section"):
-                time.sleep(0.3)
+                default_sleep()
+            slept = timings_object.delta("root_section.nested_1.leaf_section")
+            assert 2 * DEFAULT_SLEEP_SECONDS > slept.wall >= DEFAULT_SLEEP_SECONDS
+        slept = timings_object.delta("root_section.nested_1")
+        assert 3 * DEFAULT_SLEEP_SECONDS > slept.wall >= 2 * DEFAULT_SLEEP_SECONDS
+    slept = timings_object.delta("root_section")
+    assert 4 * DEFAULT_SLEEP_SECONDS > slept.wall >= 3 * DEFAULT_SLEEP_SECONDS
 
 
 def test_pickling(pickled_timings_object):
@@ -51,18 +62,19 @@ def test_pickling(pickled_timings_object):
 
 def test_context(timings_object):
     timings_object.start(_DUMMY_SECTION)
-    time.sleep(0.1)
+    default_sleep()
     timings_object.stop(_DUMMY_SECTION)
     delta_before = timings_object.delta(_DUMMY_SECTION)
     with scoped_timing(_DUMMY_SECTION, timings=timings_object):
-        time.sleep(0.1)
+        default_sleep()
     delta_after = timings_object.delta(_DUMMY_SECTION)
     assert delta_after.wall > delta_before.wall
+    assert delta_after.user > delta_before.user
 
     # use the global timings object default
     delta_before = timings_object.delta(_DUMMY_SECTION)
     with scoped_timing(_DUMMY_SECTION):
-        time.sleep(0.1)
+        default_sleep()
     delta_after = timings_object.delta(_DUMMY_SECTION)
     assert delta_after == delta_before
 
