@@ -2,6 +2,7 @@
 
 """Tests for `pytimings` package."""
 import pickle
+import sys
 import time
 from functools import partial
 from tempfile import TemporaryFile
@@ -10,8 +11,7 @@ from click.testing import CliRunner
 
 from pytimings import cli, mpi
 from pytimings.timer import scoped_timing
-from .fixtures import timings_object, use_mpi, pickled_timings_object
-
+from .fixtures import timings_object, use_mpi, pickled_timings_object, is_windows_platform
 
 _DUMMY_SECTION = 'mysection'
 
@@ -30,6 +30,11 @@ default_sleep = partial(_busywait, DEFAULT_SLEEP_SECONDS)
 
 
 def _assert(delta_value, lower=DEFAULT_SLEEP_SECONDS, upper=None):
+    if is_windows_platform():
+        fuzzy_factor = 0.99
+        lower = lower * fuzzy_factor
+        if upper:
+            upper = upper / fuzzy_factor
     if upper is None:
         assert delta_value > lower
     else:

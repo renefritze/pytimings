@@ -1,6 +1,7 @@
 import pickle
 import re
 import pytest
+import sys
 from mpi4py import MPI
 from pytest_regressions.data_regression import DataRegressionFixture
 from pytest_regressions.num_regression import NumericRegressionFixture
@@ -71,3 +72,7 @@ for _rtype, _fname in (
     _fname = f'mpi_{_fname}'
     _new_type, _fixture = _make_regression_fixture(_rtype, _fname)
     locals()[_fname] = _fixture
+
+
+def is_windows_platform():
+    return sys.platform == 'win32' or sys.platform == 'cygwin'
