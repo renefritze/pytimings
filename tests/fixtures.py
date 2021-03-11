@@ -63,11 +63,11 @@ def _make_regression_fixture(base_type, fname):
     return new_type, maker
 
 
-for rtype, fname in (
+for _rtype, _fname in (
     (DataRegressionFixture, 'data_regression'),
     (NumericRegressionFixture, 'num_regression'),
     (FileRegressionFixture, 'file_regression'),
 ):
-    fname = f'mpi_{fname}'
-    new_type, fixture = _make_regression_fixture(rtype, fname)
-    locals()[fname] = fixture
+    _fname = f'mpi_{_fname}'
+    _new_type, _fixture = _make_regression_fixture(_rtype, _fname)
+    locals()[_fname] = _fixture
