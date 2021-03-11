@@ -16,7 +16,16 @@ from .fixtures import timings_object, use_mpi, pickled_timings_object
 _DUMMY_SECTION = 'mysection'
 
 DEFAULT_SLEEP_SECONDS = 0.1
-default_sleep = partial(time.sleep, DEFAULT_SLEEP_SECONDS)
+
+
+def _busywait(secs):
+    """busywait simulates load, so user time won't be 0 in timings"""
+    init_time = time.time()
+    while time.time() < init_time + secs:
+        pass
+
+
+default_sleep = partial(_busywait, DEFAULT_SLEEP_SECONDS)
 
 
 def test_content(timings_object):
@@ -69,7 +78,7 @@ def test_context(timings_object):
         default_sleep()
     delta_after = timings_object.delta(_DUMMY_SECTION)
     assert delta_after.wall > delta_before.wall
-    assert delta_after.user >= delta_before.user
+    assert delta_after.user > delta_before.user
 
     # use the global timings object default
     delta_before = timings_object.delta(_DUMMY_SECTION)
