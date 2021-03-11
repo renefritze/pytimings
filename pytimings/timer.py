@@ -16,15 +16,15 @@ from pytimings.tools import ensure_directory_exists
 try:
     PERF_COUNTER_FUNCTION = time.perf_counter_ns
     THREAD_TIME_FUNCTION = time.time_ns
-    TO_SECONDS_FACTOR = 1e-6
+    TO_SECONDS_FACTOR = 1e-9
 except AttributeError:
-    PERF_COUNTER = time.perf_counter
+    PERF_COUNTER_FUNCTION = time.perf_counter
     try:
         THREAD_TIME_FUNCTION = time.thread_time
     except AttributeError:
         # TODO Log warning
         THREAD_TIME_FUNCTION = time.process_time
-    TO_SECONDS_FACTOR = 1e-3
+    TO_SECONDS_FACTOR = 1
 
 THREAD_TIME = "thread"
 WALL_TIME = "wall"
