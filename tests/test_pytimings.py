@@ -69,7 +69,7 @@ def test_context(timings_object):
         default_sleep()
     delta_after = timings_object.delta(_DUMMY_SECTION)
     assert delta_after.wall > delta_before.wall
-    assert delta_after.user > delta_before.user
+    assert delta_after.user >= delta_before.user
 
     # use the global timings object default
     delta_before = timings_object.delta(_DUMMY_SECTION)

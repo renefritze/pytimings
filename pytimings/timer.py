@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from io import StringIO
 from collections import namedtuple, defaultdict
 from pathlib import Path
-from psutil import cpu_times
+import psutil
 from typing import Dict, Tuple, Optional
 
 from pytimings.mpi import get_communication_wrapper, get_local_communicator, get_communicator
@@ -30,7 +30,6 @@ THREAD_TIME = "thread"
 WALL_TIME = "wall"
 SYS_TIME = "sys"
 USER_TIME = "user"
-IDLE_TIME = "idle"
 
 TimingDelta = namedtuple("TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME], defaults=[0, 0, 0])
 
@@ -48,14 +47,14 @@ class TimingData:
         self.name = name
         self._end_resources = None
         self._end_times = None
+        self._process = psutil.Process()
         self._start_times = self._get()
 
     def _get(self):
-        ps_times = cpu_times()
+        ps_times = self._process.cpu_times()
         return {
             USER_TIME: ps_times.user,
             SYS_TIME: ps_times.system,
-            IDLE_TIME: ps_times.idle,
             WALL_TIME: PERF_COUNTER_FUNCTION(),
             THREAD_TIME: THREAD_TIME_FUNCTION(),
         }
