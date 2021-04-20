@@ -10,7 +10,7 @@ from tempfile import TemporaryFile
 from click.testing import CliRunner
 
 from pytimings import cli, mpi
-from pytimings.timer import scoped_timing
+from pytimings.timer import scoped_timing, function_timer
 from .fixtures import timings_object, use_mpi, pickled_timings_object, is_windows_platform
 
 _DUMMY_SECTION = 'mysection'
@@ -100,6 +100,20 @@ def test_context(timings_object):
         default_sleep()
     delta_after = timings_object.delta(_DUMMY_SECTION)
     assert delta_after == delta_before
+
+
+def test_decorator(timings_object):
+    @function_timer(section_name=_DUMMY_SECTION, timings=timings_object)
+    def decorated():
+        default_sleep()
+
+    assert _DUMMY_SECTION not in timings_object._known_timers_map.keys()
+    decorated()
+    delta_before = timings_object.delta(_DUMMY_SECTION)
+    decorated()
+    delta_after = timings_object.delta(_DUMMY_SECTION)
+    _assert(delta_after.wall, lower=delta_before.wall)
+    _assert(delta_after.user, lower=delta_before.user)
 
 
 def test_command_line_interface():

@@ -1,4 +1,5 @@
 """Main module."""
+import functools
 import shutil
 import sys
 import time
@@ -223,3 +224,15 @@ def scoped_timing(section_name, log_function=None, timings=None):
         delta = timings.stop(section_name)
         if log_function:
             log_function(f"Executing {section_name} took {delta.wall * TO_SECONDS_FACTOR}s\n")
+
+
+def function_timer(section_name, log_function=None, timings=None):
+    def decorator(function):
+        @functools.wraps(function)
+        def wrapper(*args, **kwargs):
+            with scoped_timing(section_name=section_name, log_function=log_function, timings=timings):
+                return function(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
