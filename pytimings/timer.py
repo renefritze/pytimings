@@ -132,7 +132,7 @@ class Timings:
 
     def walltime(self, section_name: str) -> int:
         """get runtime of section in milliseconds"""
-        return self.delta(section_name)[WALL_TIME]
+        return self.delta(section_name)[0]
 
     def delta(self, section_name: str) -> Dict[str, int]:
         """get the full delta dict"""
@@ -166,10 +166,10 @@ class Timings:
     def output_simple(self, out=None):
         """outputs walltime only w/o MPI-rank averaging"""
         out = out or sys.stdout
-        for section in self._commited_deltas.keys:
+        for section in self._commited_deltas.keys():
             out.write(f"{self._csv_sep}{section}")
         for delta in self._commited_deltas.values():
-            out.write(f"{self._csv_sep}{delta[WALL_TIME]}")
+            out.write(f"{self._csv_sep}{delta[0]}")
 
     def output_all_measures(self, out=None, mpi_comm=None) -> None:
         """output all recorded measures
