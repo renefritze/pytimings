@@ -215,7 +215,7 @@ global_timings = Timings()
 
 
 @contextmanager
-def scoped_timing(section_name, log_function=None, timings=None):
+def scoped_timing(section_name, log_function=None, timings=None, format=''):
     timings = timings or global_timings
     timings.start(section_name)
     try:
@@ -223,7 +223,7 @@ def scoped_timing(section_name, log_function=None, timings=None):
     finally:
         delta = timings.stop(section_name)
         if log_function:
-            log_function(f"Executing {section_name} took {delta.wall}s\n")
+            log_function(f"Executing {section_name} took {delta.wall:^{format}}s\n")
 
 
 def function_timer(section_name, log_function=None, timings=None):
