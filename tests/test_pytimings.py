@@ -116,6 +116,13 @@ def test_decorator(timings_object):
     _assert(delta_after.user, lower=delta_before.user)
 
 
+def test_simple_output(timings_object):
+    with scoped_timing("time", print, timings=timings_object, format='.5f'):
+        default_sleep()
+    timings_object.walltime("time")
+    timings_object.output_simple()
+
+
 def test_command_line_interface():
     """Test the CLI."""
     runner = CliRunner()
