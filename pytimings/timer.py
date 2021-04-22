@@ -4,7 +4,7 @@ import shutil
 import sys
 import time
 from contextlib import contextmanager
-
+from datetime import timedelta
 from io import StringIO
 from collections import namedtuple, defaultdict
 from pathlib import Path
@@ -163,13 +163,20 @@ class Timings:
             open(a_filename, "wt").write(tmp_out.read())
             return a_filename
 
-    def output_simple(self, out=None):
+    def output_console(self):
         """outputs walltime only w/o MPI-rank averaging"""
-        out = out or sys.stdout
-        for section in self._commited_deltas.keys():
-            out.write(f"{self._csv_sep}{section}")
-        for delta in self._commited_deltas.values():
-            out.write(f"{self._csv_sep}{delta[0]}")
+        from rich import console, table, box
+
+        csl = console.Console()
+        tbl = table.Table(show_header=True, header_style="bold magenta", box=box.SIMPLE_HEAVY)
+        tbl.add_column("Section")
+        tbl.add_column(
+            "Walltime (HH:MM:SS)",
+            justify="right",
+        )
+        for section, delta in self._commited_deltas.items():
+            tbl.add_row(section, str(timedelta(seconds=delta[0])))
+        csl.print(tbl)
 
     def output_all_measures(self, out=None, mpi_comm=None) -> None:
         """output all recorded measures
