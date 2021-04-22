@@ -44,6 +44,7 @@ ci_requires = [
     'pytest-datadir',
     'pytest-timeout',
     'docutils',
+    'numpy',
 ]
 # these don't go into the pip extras
 optional_requirements_file_only = []

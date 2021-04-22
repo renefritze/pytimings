@@ -5,6 +5,7 @@ black
 check-manifest
 codecov
 docutils
+numpy
 pre-commit
 pytest
 pytest-cov
