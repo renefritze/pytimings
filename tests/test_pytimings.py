@@ -4,6 +4,7 @@
 import pickle
 import sys
 import time
+import numpy as np
 from functools import partial
 from tempfile import TemporaryFile
 
@@ -117,12 +118,18 @@ def test_decorator(timings_object):
 
 
 def test_simple_output(timings_object):
+    # simple output with optional format specifier
     with scoped_timing("time", print, timings=timings_object, format='.5f'):
         default_sleep()
     with scoped_timing("a much longer section name", print, timings=timings_object):
         _busywait(1)
-    timings_object.walltime("time")
+    scoped_sleepy_time = timings_object.walltime("time")
     timings_object.output_console()
+
+    # add a known walltime to the timings object
+    timings_object.add_walltime('sleepy_time', DEFAULT_SLEEP_SECONDS)
+    sleepy_time = timings_object.walltime("sleepy_time")
+    np.isclose(scoped_sleepy_time, sleepy_time)
 
 
 def test_command_line_interface():
