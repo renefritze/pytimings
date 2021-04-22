@@ -2,7 +2,7 @@ import pickle
 import re
 import pytest
 import sys
-from mpi4py import MPI
+
 from pytest_regressions.data_regression import DataRegressionFixture
 from pytest_regressions.num_regression import NumericRegressionFixture
 from pytest_regressions.file_regression import FileRegressionFixture
@@ -48,7 +48,7 @@ def _make_regression_fixture(base_type, fname):
         assert fullpath is None
         if basename is None:
             super_basename = re.sub(r"[\W]", "_", self.request.node.name)
-            ranks = MPI.COMM_WORLD.Get_size()
+            ranks = mpi.get_communication_wrapper().size
             assert ranks > 0
             basename = f'{super_basename}_r{ranks}'
         print(f'checking basename {basename}')
