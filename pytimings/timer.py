@@ -134,6 +134,9 @@ class Timings:
         """get runtime of section in milliseconds"""
         return self.delta(section_name)[0]
 
+    def add_walltime(self, section_name: str, time: int) -> None:
+        self._commited_deltas[section_name] = TimingDelta(time)
+
     def delta(self, section_name: str) -> Dict[str, int]:
         """get the full delta dict"""
         try:
