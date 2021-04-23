@@ -86,9 +86,8 @@ class Timings:
     def __init__(self):
         self._commited_deltas: Dict[str, TimingDelta] = {}
         self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = defaultdict(_default_timer_dict_entry)
-        self._csv_sep = ","
-        self.reset()
         self.extra_data = dict()
+        self.reset()
 
     def start(self, section_name: str) -> None:
         """set this to begin a named section"""
@@ -222,9 +221,9 @@ class Timings:
                     [f"{section}_max_sys", comm.max(syst)],
                 ]
             )
-
-        csv_file.writerow(['pytimings', pytimings.__version__])
-
+        csv_file.writerows([[f'pytimings::data::{k}', v] for k, v in self.extra_data.items()])
+        csv_file.writerow(['pytimings::sections', '||'.join(self._commited_deltas.keys())])
+        csv_file.writerow(['pytimings::version', pytimings.__version__])
         stash.seek(0)
         if comm.rank == 0:
             shutil.copyfileobj(stash, out)

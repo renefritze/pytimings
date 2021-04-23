@@ -33,7 +33,9 @@ def timings_object(request, use_mpi):
 @pytest.fixture
 def pickled_timings_object(request, use_mpi, shared_datadir):
     filename = f'nested.mpi_{mpi.HAVE_MPI}.pickle'
-    return pickle.load(open(shared_datadir / filename, 'rb'))
+    obj = pickle.load(open(shared_datadir / filename, 'rb'))
+    obj.extra_data = {}
+    return obj
 
 
 def _make_regression_fixture(base_type, fname):
