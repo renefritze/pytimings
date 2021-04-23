@@ -22,7 +22,7 @@ def test_output_simple(pickled_timings_object, file_regression):
 
 
 def test_output_per_rank(pickled_timings_object, file_regression, tmp_path):
-    fn = pickled_timings_object.output_per_rank(output_dir=tmp_path, csv_base='per_rank')
+    fn = pickled_timings_object.output_files(output_dir=tmp_path, csv_base='per_rank')
 
     if fn is not None:
         # we're rank 0 and have written the summary file

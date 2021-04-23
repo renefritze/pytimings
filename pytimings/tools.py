@@ -20,5 +20,14 @@ def output_at_exit(output_dir: Union[str, Path] = None, csv_base='timings', timi
     output_dir = Path(output_dir)
     ensure_directory_exists(output_dir)
     timings = timings or global_timings
-    output = partial(timings.output_per_rank, output_dir=output_dir, csv_base=csv_base)
+    output = partial(timings.output_files, output_dir=output_dir, csv_base=csv_base)
     atexit.register(output)
+
+
+def busywait(secs):
+    """busywait simulates load, so user time won't be 0 in timings"""
+    init_time = time.time()
+    while time.time() < init_time + secs:
+        pass
+    return time.time() - init_time
+

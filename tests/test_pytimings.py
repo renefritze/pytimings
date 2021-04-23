@@ -12,7 +12,7 @@ from click.testing import CliRunner
 
 from pytimings import cli, mpi
 from pytimings.timer import scoped_timing, function_timer
-from pytimings.tools import output_at_exit
+from pytimings.tools import output_at_exit, busywait
 from .fixtures import timings_object, use_mpi, pickled_timings_object, is_windows_platform
 
 _DUMMY_SECTION = 'mysection'
@@ -20,15 +20,7 @@ _DUMMY_SECTION = 'mysection'
 DEFAULT_SLEEP_SECONDS = 0.1
 
 
-def _busywait(secs):
-    """busywait simulates load, so user time won't be 0 in timings"""
-    init_time = time.time()
-    while time.time() < init_time + secs:
-        pass
-    return time.time() - init_time
-
-
-default_sleep = partial(_busywait, DEFAULT_SLEEP_SECONDS)
+default_sleep = partial(busywait, DEFAULT_SLEEP_SECONDS)
 
 
 def _assert(delta_value, lower=DEFAULT_SLEEP_SECONDS, upper=None):
@@ -123,7 +115,7 @@ def test_simple_output(timings_object):
     with scoped_timing("time", print, timings=timings_object, format='.5f'):
         default_sleep()
     with scoped_timing("a much longer section name", print, timings=timings_object):
-        _busywait(1)
+        busywait(1)
     scoped_sleepy_time = timings_object.walltime("time")
     timings_object.output_console()
 
