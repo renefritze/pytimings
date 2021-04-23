@@ -32,7 +32,7 @@ WALL_TIME = "wall"
 SYS_TIME = "sys"
 USER_TIME = "user"
 
-TimingDelta = namedtuple("TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME], defaults=[0, 0, 0])
+TimingDelta = namedtuple("TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME])
 
 
 class NoTimerError(Exception):
@@ -128,14 +128,14 @@ class Timings:
             self.stop(section_name)
         except NoTimerError:
             pass  # not stopping no timer is not an error
-        self._commited_deltas[section_name] = TimingDelta()
+        self._commited_deltas[section_name] = TimingDelta(0, 0, 0)
 
     def walltime(self, section_name: str) -> int:
         """get runtime of section in milliseconds"""
         return self.delta(section_name)[0]
 
     def add_walltime(self, section_name: str, time: int) -> None:
-        self._commited_deltas[section_name] = TimingDelta(time)
+        self._commited_deltas[section_name] = TimingDelta(time, 0, 0)
 
     def delta(self, section_name: str) -> Dict[str, int]:
         """get the full delta dict"""
