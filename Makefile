@@ -5,8 +5,10 @@ ENV_FILE?=.env
 include $(ENV_FILE)
 export $(shell sed 's/=.*//' $(ENV_FILE))
 
-.PHONY:  deps
+.PHONY:  deps black
 
 deps:
 	./dependencies.py
 
+black:
+	black examples pytimings tests
