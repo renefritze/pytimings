@@ -12,6 +12,7 @@ from click.testing import CliRunner
 
 from pytimings import cli, mpi
 from pytimings.timer import scoped_timing, function_timer
+from pytimings.tools import output_at_exit
 from .fixtures import timings_object, use_mpi, pickled_timings_object, is_windows_platform
 
 _DUMMY_SECTION = 'mysection'
@@ -130,6 +131,11 @@ def test_simple_output(timings_object):
     timings_object.add_walltime('sleepy_time', DEFAULT_SLEEP_SECONDS)
     sleepy_time = timings_object.walltime("sleepy_time")
     np.isclose(scoped_sleepy_time, sleepy_time)
+
+
+def test_atexit(timings_object):
+    """This only tests if the setup function can be called"""
+    output_at_exit(timings=timings_object)
 
 
 def test_command_line_interface():
