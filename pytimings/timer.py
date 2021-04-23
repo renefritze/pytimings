@@ -1,4 +1,5 @@
 """Main module."""
+import csv
 import functools
 import shutil
 import sys
@@ -10,6 +11,8 @@ from collections import namedtuple, defaultdict
 from pathlib import Path
 import psutil
 from typing import Dict, Tuple, Optional
+
+import pytimings
 
 from pytimings.mpi import get_communication_wrapper, get_local_communicator, get_communicator
 from pytimings.tools import ensure_directory_exists
@@ -187,39 +190,41 @@ class Timings:
 
     def output_all_measures(self, out=None, mpi_comm=None) -> None:
         """output all recorded measures
-        * \note outputs average, min, max over all MPI processes associated to mpi_comm **/"""
+
+        * \note outputs average, min, max over all MPI processes associated to mpi_comm **/
+        """
         out = out or sys.stdout
         mpi_comm = mpi_comm or get_communicator()
         comm = get_communication_wrapper(mpi_comm)
         stash = StringIO()
-        sep = self._csv_sep
-        stash.write(f"threads{sep}ranks")
-        for section in self._commited_deltas.keys():
-            stash.write(
-                f'{sep}{section}_avg_usr{sep}{section}_max_usr{sep}{section}_avg_wall{sep}{section}_max_wall{sep}{section}_avg_sys{sep}{section}_max_sys'
-            )
+        csv_file = csv.writer(stash)
+        # header
+        csv_file.writerow(['section', 'value'])
+
+        # threadManager().max_threads()
+        csv_file.writerow(["threads", 1])
+        csv_file.writerow(["ranks", comm.size])
 
         weight = 1 / comm.size
-
-        # threadManager().max_threads() {sep} comm.size()
-        stash.write(f"\n1{sep}{comm.size}")
 
         for section, delta in self._commited_deltas.items():
             delta = delta._asdict()
             wall = delta[WALL_TIME]
             usr = delta[USER_TIME]
             syst = delta[SYS_TIME]
-            wall_sum = comm.sum(wall)
-            wall_max = comm.max(wall)
-            usr_sum = comm.sum(usr)
-            usr_max = comm.max(usr)
-            sys_sum = comm.sum(syst)
-            sys_max = comm.max(syst)
-            stash.write(
-                f"{sep}{usr_sum * weight}{sep}{usr_max}{sep}{wall_sum * weight}{sep}{wall_max}{sep}{sys_sum * weight}{sep}{sys_max}"
+            csv_file.writerows(
+                [
+                    [f"{section}_avg_usr", comm.sum(usr) * weight],
+                    [f"{section}_max_usr", comm.max(usr)],
+                    [f"{section}_avg_wall", comm.sum(wall) * weight],
+                    [f"{section}_max_wall", comm.max(wall)],
+                    [f"{section}_avg_sys", comm.sum(syst) * weight],
+                    [f"{section}_max_sys", comm.max(syst)],
+                ]
             )
 
-        stash.write("\n")
+        csv_file.writerow(['pytimings', pytimings.__version__])
+
         stash.seek(0)
         if comm.rank == 0:
             shutil.copyfileobj(stash, out)
