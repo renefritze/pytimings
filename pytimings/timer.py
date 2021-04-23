@@ -85,6 +85,7 @@ class Timings:
         self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = defaultdict(_default_timer_dict_entry)
         self._csv_sep = ","
         self.reset()
+        self.extra_data = dict()
 
     def start(self, section_name: str) -> None:
         """set this to begin a named section"""
@@ -144,18 +145,21 @@ class Timings:
         except KeyError:
             raise NoTimerError(section_name, self)
 
-    def output_per_rank(self, output_dir: Path, csv_base: str) -> None:
-        """
-             creates one file local to each MPI-rank (no global averaging)
-        *  one single rank-0 file with all combined/averaged measures
+    def output_files(self, output_dir: Path, csv_base: str, per_rank=False) -> None:
+        """creates one file local to each MPI-rank (no global averaging)
+        and one single rank-0 file with all combined/averaged measures
+
+
         """
         communication = get_communication_wrapper()
         rank = communication.rank
 
+        output_dir = Path(output_dir)
         ensure_directory_exists(output_dir)
-        filename = output_dir / f"{csv_base}_p{rank:08d}.csv"
-        with open(filename, "wt") as outfile:
-            self.output_all_measures(outfile, get_local_communicator())
+        if per_rank:
+            filename = output_dir / f"{csv_base}_p{rank:08d}.csv"
+            with open(filename, "wt") as outfile:
+                self.output_all_measures(outfile, get_local_communicator())
         tmp_out = StringIO()
         # all ranks have to participate in the data generation
         self.output_all_measures(tmp_out, get_communicator())
@@ -219,6 +223,13 @@ class Timings:
         stash.seek(0)
         if comm.rank == 0:
             shutil.copyfileobj(stash, out)
+
+    def add_extra_data(self, data: [Dict]):
+        """Use this for something configuration data that makes the csv more informative.
+
+        Data is not displayed with console output.
+        """
+        self.extra_data.update(data)
 
 
 global_timings = Timings()
