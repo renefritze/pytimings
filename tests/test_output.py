@@ -6,6 +6,8 @@ from pytimings.processing import csv_to_dataframe
 
 
 def _content(fd):
+    # last line is the version field which is ever changing
+    # compare files are stored with unix lf and git set to not modify
     return ''.join(fd.readlines()[:-1])
 
 
@@ -14,7 +16,6 @@ def test_output_all_measures(pickled_timings_object, mpi_file_regression):
     with StringIO() as out:
         timing.output_all_measures(out)
         out.seek(0)
-        # last line is the version field which is ever changing
         mpi_file_regression.check(_content(out))
 
 
