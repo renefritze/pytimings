@@ -4,6 +4,7 @@
 matplotlib
 mpi4py
 packaging
+pandas
 psutil
 pytest-runner>=2.9
 python-slugify
