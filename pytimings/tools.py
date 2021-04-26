@@ -14,15 +14,27 @@ def ensure_directory_exists(dirname):
         pass
 
 
-def output_at_exit(output_dir: Union[str, Path] = None, csv_base='timings', timings=None) -> None:
+def output_at_exit(
+    output_dir: Union[str, Path] = None, csv_base='timings', timings=None, files=True, console=True
+) -> None:
+    """Register output methods to be executed at Python interpreter exit
+
+    files: set to False to not write csv files to disk
+    console: set to False to not display console output for timing sections
+    csv_base: filename stem for csv outputs
+    output_dir: directory for csv outputs, defaults to current working directory
+    """
     from pytimings.timer import global_timings
 
-    output_dir = output_dir or os.getcwd()
-    output_dir = Path(output_dir)
-    ensure_directory_exists(output_dir)
     timings = timings or global_timings
-    output = partial(timings.output_files, output_dir=output_dir, csv_base=csv_base)
-    atexit.register(output)
+    if files:
+        output_dir = output_dir or os.getcwd()
+        output_dir = Path(output_dir)
+        ensure_directory_exists(output_dir)
+        output = partial(timings.output_files, output_dir=output_dir, csv_base=csv_base)
+        atexit.register(output)
+    if console:
+        atexit.register(timings.output_console)
 
 
 def busywait(secs):
