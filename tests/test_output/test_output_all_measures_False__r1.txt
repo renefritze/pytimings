@@ -20,4 +20,4 @@ root_section_max_wall,601.4659389999999
 root_section_avg_sys,0.1900000000023283
 root_section_max_sys,0.1900000000023283
 pytimings::sections,root_section.nested_1.leaf_section||root_section.nested_1||root_section
-pytimings::version,v2021.3.0+20.gefec3d1.dirty
+pytimings::filename
