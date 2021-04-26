@@ -1,8 +1,12 @@
 from io import StringIO
+
+import pytimings
 from pytest_regressions import file_regression
 import pytest
 
 from .fixtures import timings_object, use_mpi, pickled_timings_object, mpi_file_regression
+from pytimings.tools import generate_example_data
+from pytimings.processing import csv_to_dataframe
 
 
 def _content(fd):
@@ -32,3 +36,9 @@ def test_output_per_rank(pickled_timings_object, file_regression, tmp_path):
     if fn is not None:
         # we're rank 0 and have written the summary file
         file_regression.check(_content(open(fn)))
+
+
+def test_csv_to_dataframe(tmpdir):
+    files = generate_example_data(tmpdir)
+    frame = csv_to_dataframe(files)
+    assert all(frame['pytimings::data::_version'] == pytimings.__version__)
