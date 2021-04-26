@@ -196,7 +196,7 @@ class Timings:
         mpi_comm = mpi_comm or get_communicator()
         comm = get_communication_wrapper(mpi_comm)
         stash = StringIO()
-        csv_file = csv.writer(stash)
+        csv_file = csv.writer(stash, lineterminator='\n')
         # header
         csv_file.writerow(['section', 'value'])
 
