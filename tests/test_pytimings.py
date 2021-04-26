@@ -2,18 +2,16 @@
 
 """Tests for `pytimings` package."""
 import pickle
-import sys
-import time
 import numpy as np
 from functools import partial
 from tempfile import TemporaryFile
 
 from click.testing import CliRunner
 
-from pytimings import cli, mpi
+from pytimings import cli
 from pytimings.timer import scoped_timing, function_timer
 from pytimings.tools import output_at_exit, busywait
-from .fixtures import timings_object, use_mpi, pickled_timings_object, is_windows_platform
+from .fixtures import is_windows_platform
 
 _DUMMY_SECTION = 'mysection'
 

@@ -1,10 +1,6 @@
 from io import StringIO
 
 import pytimings
-from pytest_regressions import file_regression
-import pytest
-
-from .fixtures import timings_object, use_mpi, pickled_timings_object, mpi_file_regression
 from pytimings.tools import generate_example_data
 from pytimings.processing import csv_to_dataframe
 
