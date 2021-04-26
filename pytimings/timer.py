@@ -223,6 +223,11 @@ class Timings:
             )
         csv_file.writerows([[f'pytimings::data::{k}', v] for k, v in self.extra_data.items()])
         csv_file.writerow(['pytimings::sections', '||'.join(self._commited_deltas.keys())])
+        csv_file.writerow(
+            [
+                'pytimings::filename',
+            ]
+        )
         csv_file.writerow(['pytimings::version', pytimings.__version__])
         stash.seek(0)
         if comm.rank == 0:
