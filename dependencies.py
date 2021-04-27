@@ -14,9 +14,8 @@ def setup_requires():
     ]
 
 
-install_requires = ['packaging', 'typer', 'rich', 'pandas'] + setup_requires()
+install_requires = ['packaging', 'typer', 'rich', 'pandas', 'matplotlib'] + setup_requires()
 install_suggests = {
-    'matplotlib': 'needed for error plots in demo scipts',
     'mpi4py': 'needed for global data operations',
 }
 doc_requires = [
