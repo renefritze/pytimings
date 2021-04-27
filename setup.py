@@ -15,10 +15,8 @@ install_requires = dependencies.install_requires
 setup_requires = dependencies.setup_requires()
 install_suggests = dependencies.install_suggests
 
-with open('README.rst') as readme_file:
+with open('README.md') as readme_file:
     readme = readme_file.read()
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
 
 setup(
     author="René Fritze",
@@ -45,7 +43,8 @@ setup(
     install_requires=install_requires,
     extras_require=dependencies.extras(),
     license="BSD license",
-    long_description=readme + '\n\n' + history + '\n\n',
+    long_description=readme,
+    long_description_content_type='text/markdown',
     include_package_data=True,
     keywords='pytimings',
     name='pytimings',
