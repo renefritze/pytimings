@@ -17,6 +17,7 @@ kernelspec:
   name: python3
 ---
 
+
 Scopes and Decorators
 =====================
 
@@ -39,7 +40,7 @@ mysleep(1)
 
 This will accumulate the time spent in all calls to `mysleep`.
 To demonstrate that, we'll use another automatic timing option:
-a context manager called `scoped_timing` which starts a timer
+a context manager called {meth}`pytimings.timer.scoped_timing` which starts a timer
 on entering the scope and stops it on leaving.
 
 ```{code-cell}
@@ -50,7 +51,7 @@ with scoped_timing(section_name="my_scope"):
     mysleep(0.5)
 ```
 
-Both the decorator and the context manager use the `global_timings`
+Both the decorator and the context manager use the {attr}`pytimings.timer.global_timings`
 object by default, but you can pass in a custom one too.
 
 ```{code-cell}
