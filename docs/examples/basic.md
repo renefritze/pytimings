@@ -10,7 +10,7 @@ kernelspec:
 Basic Usage
 ===========
 
-We'll start by importing the always existing, global `Timings` object.
+We'll start by importing the (always existing) global `Timings` object.
 
 ```{code-cell}
 
