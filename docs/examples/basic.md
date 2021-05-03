@@ -20,7 +20,7 @@ kernelspec:
 Basic Usage
 ===========
 
-We'll start by importing the (always existing) global `Timings` object.
+We'll start by importing the (always existing) global {class}`pytimings.timer.Timings` object.
 
 ```{code-cell}
 
@@ -30,7 +30,7 @@ global_timings
 
 To measure the execution time of a given code segment you can
 start a timer with a given section name and stop it afterwards.
-`stop` returns a `TimingsDelta` object with the gathered info.
+`stop` returns a {class}`pytimings.timer.TimingsDelta` object with the gathered info.
 
 ```{code-cell}
 
@@ -41,14 +41,16 @@ global_timings.stop("a_section_name")
 ```
 
 To inspect deltas of known sections at any other point
-use the `delta` function.
+use the {meth}`pytimings.timer.Timings.delta` function.
 
 ```{code-cell}
 
 global_timings.delta("a_section_name")
 ```
+There's also a convenience method {meth}`pytimings.timer.Timings.walltime`
+to only query the walltime instead of the full delta object.
 
-To get an overview over all sections you can use `output_console`.
+To get an overview over all sections you can use `{meth}`pytimings.timer.Timings.output_console`.
 
 ```{code-cell}
 
