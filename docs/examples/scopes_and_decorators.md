@@ -61,6 +61,6 @@ global_timings.output_console()
 ```
 
 You can see that the `my_function` timer recorded all 4 calls,
-while the `my_scope` only containts one `0.5` call.
+while the `my_scope` only contains one `0.5` call.
 The custom timings object does not interact with the `my_scope` section
 of `global_timings`.
