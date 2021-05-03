@@ -1,7 +1,10 @@
 # Usage
 
-To use PyTimings in a project:
+```{toctree}
+:maxdepth: 1
 
-```
-import pytimings
+examples/basic
+examples/scopes_and_decorators
+examples/plotting
+
 ```
