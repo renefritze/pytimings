@@ -8,3 +8,9 @@ examples/scopes_and_decorators
 examples/plotting
 
 ```
+
+
+## Example notebooks statistics
+
+```{nb-exec-table}
+```
