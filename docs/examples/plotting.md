@@ -1,4 +1,7 @@
 ---
+jupytext:
+  text_representation:
+   format_name: myst
 jupyter:
   jupytext:
     cell_metadata_filter: -all
