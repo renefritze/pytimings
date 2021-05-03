@@ -4,10 +4,9 @@
 
 
 def setup_requires():
-    # setuptools pin in accordance with numpy: https://github.com/numpy/numpy/pull/17000, see also https://github.com/pypa/setuptools/pull/2260 https://github.com/pypa/setuptools/pull/2259
     return [
         'psutil',
-        'setuptools>=40.8.0,<49.2.0',
+        'setuptools',
         'wheel',
         'pytest-runner>=2.9',
         'packaging',
@@ -19,7 +18,7 @@ install_suggests = {
     'mpi4py': 'needed for global data operations',
 }
 doc_requires = [
-    'sphinx>=3.3',
+    'sphinx',
     'matplotlib',
     'python-slugify',
     'myst-nb',
