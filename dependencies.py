@@ -13,7 +13,7 @@ def setup_requires():
     ]
 
 
-install_requires = ['packaging', 'typer', 'rich', 'pandas', 'matplotlib'] + setup_requires()
+install_requires = ['packaging', 'typer', 'rich', 'pandas', 'matplotlib', 'jupytext'] + setup_requires()
 install_suggests = {
     'mpi4py': 'needed for global data operations',
 }
