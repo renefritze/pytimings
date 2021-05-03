@@ -190,7 +190,7 @@ class Timings:
     def output_all_measures(self, out=None, mpi_comm=None) -> None:
         """output all recorded measures
 
-        * \note outputs average, min, max over all MPI processes associated to mpi_comm **/
+        Outputs average, min, max over all MPI processes associated to mpi_comm
         """
         out = out or sys.stdout
         mpi_comm = mpi_comm or get_communicator()
