@@ -17,10 +17,13 @@
 # relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
 #
-import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.abspath('..'))
+this_dir = Path(__file__).resolve().parent
+root_dir = (this_dir / '..').resolve()
+sys.path.insert(0, str(root_dir))
+sys.path.insert(0, str(this_dir))
 
 import pytimings
 
@@ -32,7 +35,7 @@ import pytimings
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', "autoapi", "myst_nb"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,7 +44,11 @@ templates_path = ['_templates']
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.ipynb': 'myst-nb',
+    '.md': 'myst-nb',
+}
 
 # The master toctree document.
 master_doc = 'index'
@@ -76,7 +83,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = False
+todo_include_todos = True
 
 
 # -- Options for HTML output -------------------------------------------
@@ -152,3 +159,9 @@ texinfo_documents = [
         'Miscellaneous',
     ),
 ]
+
+autoapi_python_use_implicit_namespaces = True
+autoapi_dirs = [root_dir / 'pytimings']
+autoapi_type = 'python'
+# allows incremental build
+autoapi_keep_files = True

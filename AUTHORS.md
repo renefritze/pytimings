@@ -1,13 +1,12 @@
-=======
 Credits
 =======
 
 Development Lead
 ----------------
 
-* René Fritze <coding@fritze.me>
+ - René Fritze <coding@fritze.me>
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+ - Tim Keil <tim.keil@wwu.de>

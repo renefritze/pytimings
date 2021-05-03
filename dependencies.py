@@ -22,8 +22,8 @@ doc_requires = [
     'sphinx>=3.3',
     'matplotlib',
     'python-slugify',
-    'sphinx-material',
-    'sphinx-autoapi>=1.7',
+    'myst-nb',
+    'sphinx-autoapi>=1.8',
 ] + install_requires
 ci_requires = [
     'pytest',
