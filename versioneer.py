@@ -720,8 +720,8 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
     # information.
     date = date.splitlines()[-1]
     pieces["date"] = date.strip().replace(" ", "T", 1).replace(" ", "", 1)
-    pieces["run_number"] = os.environ.get("GITHUB_RUN_NUMBER",
-            os.environ.get("CI_CONCURRENT_PROJECT_ID", pieces["distance"]))
+    pieces["run_number"] = int(os.environ.get("GITHUB_RUN_NUMBER",
+            os.environ.get("CI_CONCURRENT_PROJECT_ID", pieces["distance"])))
 
     return pieces
 
@@ -1122,8 +1122,8 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
     # information.
     date = date.splitlines()[-1]
     pieces["date"] = date.strip().replace(" ", "T", 1).replace(" ", "", 1)
-    pieces["run_number"] = os.environ.get(
-        "GITHUB_RUN_NUMBER", os.environ.get("CI_CONCURRENT_PROJECT_ID", pieces["distance"])
+    pieces["run_number"] = int(
+        os.environ.get("GITHUB_RUN_NUMBER", os.environ.get("CI_CONCURRENT_PROJECT_ID", pieces["distance"]))
     )
 
     return pieces
