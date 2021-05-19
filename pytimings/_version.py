@@ -309,6 +309,9 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
     # information.
     date = date.splitlines()[-1]
     pieces["date"] = date.strip().replace(" ", "T", 1).replace(" ", "", 1)
+    pieces["run_number"] = int(
+        os.environ.get("GITHUB_RUN_NUMBER", os.environ.get("CI_CONCURRENT_PROJECT_ID", pieces["distance"]))
+    )
 
     return pieces
 
@@ -345,18 +348,18 @@ def render_pep440(pieces):
 
 
 def render_pep440_pre(pieces):
-    """TAG[.post0.devDISTANCE] -- No -dirty.
+    """TAG[.post1.devRUN_NUMBER] -- No -dirty.
 
     Exceptions:
-    1: no tags. 0.post0.devDISTANCE
+    1: no tags. 0.post1.devRUN_NUMBER
     """
     if pieces["closest-tag"]:
         rendered = pieces["closest-tag"]
-        if pieces["distance"]:
-            rendered += ".post0.dev%d" % pieces["distance"]
+        if pieces["run_number"]:
+            rendered += ".post1.dev%d" % pieces["run_number"]
     else:
         # exception #1
-        rendered = "0.post0.dev%d" % pieces["distance"]
+        rendered = "0.post1.dev%d" % pieces["distance"]
     return rendered
 
 
