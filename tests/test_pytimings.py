@@ -9,7 +9,7 @@ from tempfile import TemporaryFile
 from click.testing import CliRunner
 
 from pytimings import cli
-from pytimings.timer import scoped_timing, function_timer
+from pytimings.timer import scoped_timing, cummulative_scoped_timing, function_timer
 from pytimings.tools import output_at_exit, busywait
 from .fixtures import is_windows_platform
 
@@ -121,6 +121,25 @@ def test_simple_output(timings_object):
     timings_object.add_walltime('sleepy_time', DEFAULT_SLEEP_SECONDS)
     sleepy_time = timings_object.walltime("sleepy_time")
     np.isclose(scoped_sleepy_time, sleepy_time)
+
+
+def test_cummulative_scoped_timings(timings_object):
+    # 'scoped_timing' and 'cummulative_scoped_timing' only differ in terms of their output, but not in terms
+    # of their way of storing deltas
+    with scoped_timing("time", print, timings=timings_object, format='.5f'):
+        default_sleep()
+    with scoped_timing("time", print, timings=timings_object, format='.5f'):
+        # printout will be default_sleep()
+        default_sleep()
+
+    with cummulative_scoped_timing("another time", print, timings=timings_object, format='.5f'):
+        default_sleep()
+    with cummulative_scoped_timing("another time", print, timings=timings_object, format='.5f'):
+        # printout will be 2 * default_sleep()
+        default_sleep()
+
+    # but this doesn't matter for the objects
+    np.isclose(timings_object.walltime("time"), timings_object.walltime("another time"))
 
 
 def test_atexit(timings_object):
