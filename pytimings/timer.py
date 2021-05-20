@@ -241,7 +241,10 @@ global_timings = Timings()
 
 @contextmanager
 def scoped_timing(section_name, log_function=None, timings=None, format=''):
-    """The printout will return the added walltime for the section_name in this function call"""
+    """Start timer on entering block scope, stop it (and optionally output) on exiting. 
+    
+    The printout will only show walltime for the current scope. See :py:func:`~pytimings.timer.cummulative_scoped_timing` for a version with cummulative output. 
+    """
     timings = timings or global_timings
     timings.start(section_name)
     try:
