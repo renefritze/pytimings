@@ -241,6 +241,24 @@ global_timings = Timings()
 
 @contextmanager
 def scoped_timing(section_name, log_function=None, timings=None, format=''):
+    """The printout will return the added walltime for the section_name in this function call"""
+    timings = timings or global_timings
+    timings.start(section_name)
+    try:
+        yield
+    finally:
+        try:
+            previous_wall = timings.walltime(section_name)
+        except:
+            previous_wall = 0
+        delta = timings.stop(section_name)
+        if log_function:
+            log_function(f"Executing {section_name} took {previous_wall-delta.wall:^{format}}s")
+
+
+@contextmanager
+def cummulative_scoped_timing(section_name, log_function=None, timings=None, format=''):
+    """The prinout will return the cummulated walltime for the section_name"""
     timings = timings or global_timings
     timings.start(section_name)
     try:
@@ -248,7 +266,7 @@ def scoped_timing(section_name, log_function=None, timings=None, format=''):
     finally:
         delta = timings.stop(section_name)
         if log_function:
-            log_function(f"Executing {section_name} took {delta.wall:^{format}}s")
+            log_function(f"Executing {section_name} cummulatively took {delta.wall:^{format}}s")
 
 
 def function_timer(section_name, log_function=None, timings=None):
