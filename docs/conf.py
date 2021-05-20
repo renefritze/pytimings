@@ -165,5 +165,6 @@ autoapi_dirs = [root_dir / 'pytimings']
 autoapi_type = 'python'
 # allows incremental build
 autoapi_keep_files = True
+autoapi_template_dir = this_dir / '_templates' / 'autoapi'
 
 jupyter_execute_notebooks = "cache"
