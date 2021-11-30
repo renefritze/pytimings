@@ -4,7 +4,7 @@
 jupytext
 matplotlib
 mpi4py
-myst-nb>=0.13.0a1
+myst-nb>=0.13.1
 packaging
 pandas
 psutil
