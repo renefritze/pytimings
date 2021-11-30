@@ -21,7 +21,7 @@ doc_requires = [
     'sphinx',
     'matplotlib',
     'python-slugify',
-    'myst-nb>=0.13.0a1',
+    'myst-nb>=0.13.1',
     'sphinx-autoapi>=1.8',
 ] + install_requires
 ci_requires = [
