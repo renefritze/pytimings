@@ -277,11 +277,13 @@ def cummulative_scoped_timing(section_name, log_function=None, timings=None, for
             log_function(f"Executing {section_name} cummulatively took {delta.wall:^{format}}s")
 
 
-def function_timer(section_name, log_function=None, timings=None):
+def function_timer(section_name=None, log_function=None, timings=None):
     def decorator(function):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
-            with scoped_timing(section_name=section_name, log_function=log_function, timings=timings):
+            with scoped_timing(
+                section_name=section_name or function.__qualname__, log_function=log_function, timings=timings
+            ):
                 return function(*args, **kwargs)
 
         return wrapper

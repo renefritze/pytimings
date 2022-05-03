@@ -108,6 +108,36 @@ def test_decorator(timings_object):
     _assert(delta_after.user, lower=delta_before.user)
 
 
+def test_decorator_default_name(timings_object):
+    @function_timer(timings=timings_object)
+    def my_decorated_name():
+        default_sleep()
+
+    class OuterClass:
+        @function_timer(timings=timings_object)
+        def my_inner_name(self):
+            default_sleep()
+
+    section = "test_decorator_default_name.<locals>.my_decorated_name"
+    assert section not in timings_object._known_timers_map.keys()
+    my_decorated_name()
+    delta_before = timings_object.delta(section)
+    my_decorated_name()
+    delta_after = timings_object.delta(section)
+    _assert(delta_after.wall, lower=delta_before.wall)
+    _assert(delta_after.user, lower=delta_before.user)
+
+    section = "test_decorator_default_name.<locals>.OuterClass.my_inner_name"
+    assert section not in timings_object._known_timers_map.keys()
+    obj = OuterClass()
+    obj.my_inner_name()
+    delta_before = timings_object.delta(section)
+    obj.my_inner_name()
+    delta_after = timings_object.delta(section)
+    _assert(delta_after.wall, lower=delta_before.wall)
+    _assert(delta_after.user, lower=delta_before.user)
+
+
 def test_simple_output(timings_object):
     # simple output with optional format specifier
     with scoped_timing("time", print, timings=timings_object, format='.5f'):
