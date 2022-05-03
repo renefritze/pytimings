@@ -28,7 +28,7 @@ automate this by putting a decorator on a function.
 
 from pytimings.timer import function_timer
 
-@function_timer(section_name="my_function")
+@function_timer()
 def mysleep(seconds=1):
     import time
     init_time = time.time()
@@ -36,6 +36,17 @@ def mysleep(seconds=1):
         pass
 
 mysleep(1)
+```
+
+By default the section name will be the decorated function's `__qualname__`.
+You can customize this
+```{code-cell}
+@function_timer(section_name="not_sleepy")
+def mysleep(seconds=1):
+    import time
+    init_time = time.time()
+    while time.time() < init_time + seconds:
+        pass
 ```
 
 This will accumulate the time spent in all calls to `mysleep`.
