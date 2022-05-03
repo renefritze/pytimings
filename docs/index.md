@@ -5,6 +5,7 @@
 :caption: "Contents:"
 
 readme
+changelog
 installation
 usage
 contributing
