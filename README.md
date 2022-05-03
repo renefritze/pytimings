@@ -18,7 +18,17 @@ MPI Aware section timings
 Features
 --------
 
--   TODO
+- Automatic, decorator-based code timings
+- Aware of MPI parallel runs
+- manual control
+- structured (CSV/terminal) output
+- matplotlib plotting of results
+
+
+Usage
+-----
+
+See [this section](https://pytimings.readthedocs.io/en/latest/usage.html) in our documentation
 
 Credits
 -------
