@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# DO NOT use any python features here that require 3.6 or newer
-
 
 def setup_requires():
     return [
