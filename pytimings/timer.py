@@ -177,6 +177,14 @@ class Timings:
         from rich import console, table, box
 
         csl = console.Console()
+        tbl = table.Table(show_header=True, header_style="bold blue", box=box.SIMPLE_HEAVY)
+        tbl.add_column("Extra")
+        tbl.add_column("Data")
+        for key, value in self.extra_data.items():
+            tbl.add_row(key, str(value))
+        if len(self.extra_data):
+            csl.print(tbl)
+
         tbl = table.Table(show_header=True, header_style="bold magenta", box=box.SIMPLE_HEAVY)
         tbl.add_column("Section")
         tbl.add_column(
@@ -185,7 +193,10 @@ class Timings:
         )
         for section, delta in self._commited_deltas.items():
             tbl.add_row(section, str(timedelta(seconds=delta[0])))
-        csl.print(tbl)
+        if len(self._commited_deltas):
+            csl.print(tbl)
+        else:
+            csl.print("No timings were recorded")
 
     def output_all_measures(self, out=None, mpi_comm=None) -> None:
         """output all recorded measures

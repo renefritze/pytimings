@@ -6,11 +6,6 @@
 examples/basic
 examples/scopes_and_decorators
 examples/plotting
+examples/extra_data
 
-```
-
-
-## Example notebooks statistics
-
-```{nb-exec-table}
 ```
