@@ -1,6 +1,14 @@
 # Changelog
 
 
+## 2022.2.0
+
+### Breaking changes
+
+### Non-breaking changes
+
+- `Timings.extra_data` rendering is now included in console output
+
 ## 2022.1.0
 
 ### Breaking changes
