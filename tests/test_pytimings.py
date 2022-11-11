@@ -23,7 +23,7 @@ default_sleep = partial(busywait, DEFAULT_SLEEP_SECONDS)
 
 def _assert(delta_value, lower=DEFAULT_SLEEP_SECONDS, upper=None):
     if is_windows_platform():
-        fuzzy_factor = 0.95
+        fuzzy_factor = 0.90
         lower = lower * fuzzy_factor
         if upper:
             upper = upper / fuzzy_factor
