@@ -164,13 +164,9 @@ def test_cummulative_scoped_timings(timings_object):
         # printout will be default_sleep()
         default_sleep()
 
-    with cummulative_scoped_timing(
-        "another time", print, timings=timings_object, format=".5f"
-    ):
+    with cummulative_scoped_timing("another time", print, timings=timings_object, format=".5f"):
         default_sleep()
-    with cummulative_scoped_timing(
-        "another time", print, timings=timings_object, format=".5f"
-    ):
+    with cummulative_scoped_timing("another time", print, timings=timings_object, format=".5f"):
         # printout will be 2 * default_sleep()
         default_sleep()
 
