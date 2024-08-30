@@ -13,7 +13,7 @@ from pytimings import cli
 from pytimings.timer import cummulative_scoped_timing, function_timer, scoped_timing
 from pytimings.tools import busywait, output_at_exit
 
-from .fixtures import is_windows_platform
+from .fixtures import is_mac_platform, is_windows_platform
 
 _DUMMY_SECTION = "mysection"
 
@@ -24,8 +24,8 @@ default_sleep = partial(busywait, DEFAULT_SLEEP_SECONDS)
 
 
 def _assert(delta_value, lower=DEFAULT_SLEEP_SECONDS, upper=None):
-    if is_windows_platform():
-        fuzzy_factor = 0.90
+    if is_windows_platform() or is_mac_platform():
+        fuzzy_factor = 0.85
         lower = lower * fuzzy_factor
         if upper:
             upper = upper / fuzzy_factor

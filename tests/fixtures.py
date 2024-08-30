@@ -77,3 +77,7 @@ for _rtype, _fname in (
 
 def is_windows_platform():
     return sys.platform == "win32" or sys.platform == "cygwin"
+
+
+def is_mac_platform():
+    return sys.platform == "darwin"
