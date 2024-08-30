@@ -71,6 +71,8 @@ jobs:
         fail_ci_if_error: true
         token: ${{ secrets.CODECOV_TOKEN }}
     - name: build docs
+      # RTD builds on linux too
+      if: contains(matrix.config.os, 'ubuntu')
       run: |
         python -m pip install .[docs]
         make -C docs html
