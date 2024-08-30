@@ -33,9 +33,7 @@ FIGURE_OUTPUTS = ["png", "pdf", "pgf"]
 SMALL_SIZE = 11
 MEDIUM_SIZE = 13
 BIGGER_SIZE = 16
-matplotlib.rc(
-    "font", size=MEDIUM_SIZE, family="sans-serif"
-)  # controls default text sizes
+matplotlib.rc("font", size=MEDIUM_SIZE, family="sans-serif")  # controls default text sizes
 matplotlib.rc("axes", titlesize=BIGGER_SIZE)  # fontsize of the axes title
 matplotlib.rc("axes", labelsize=BIGGER_SIZE)  # fontsize of the x and y labels
 matplotlib.rc("xtick", labelsize=SMALL_SIZE)  # fontsize of the tick labels
@@ -76,8 +74,8 @@ def read_files(dirnames, specials=None):
     specials = specials or SPECIALS
     header = {"memory": [], "profiler": [], "params": [], "errors": []}
     for fn in dirnames:
-        assert os.path.isdir(fn)
-        prof = os.path.join(fn, "profiler.csv")
+        assert os.path.isdir(fn)  # noqa: PTH112
+        prof = os.path.join(fn, "profiler.csv")  # noqa: PTH118
         try:
             new = pd.read_csv(prof)
         except pd.parser.CParserError as e:
@@ -89,33 +87,26 @@ def read_files(dirnames, specials=None):
         subdirs = ["", "logs", "logdata"]
         params.read(
             [
-                os.path.join(fn, sd, pfn)
+                os.path.join(fn, sd, pfn)  # noqa: PTH118
                 for sd, pfn in itertools.product(subdirs, param_fn)
             ]
         )
         p = {}
         for section in params.sections():
-            p.update(
-                {
-                    f"{section}.{n}": make_val(v)
-                    for n, v in params.items(section)
-                }
-            )
-        p["grids.total_macro_cells"] = math.pow(
-            p["grids.macro_cells_per_dim"], p["grids.dim"]
-        )
+            p.update({f"{section}.{n}": make_val(v) for n, v in params.items(section)})
+        p["grids.total_macro_cells"] = math.pow(p["grids.macro_cells_per_dim"], p["grids.dim"])
         p["grids.total_fine_cells"] = p["grids.total_macro_cells"] * math.pow(
             p["grids.micro_cells_per_macrocell_dim"], p["grids.dim"]
         )
         param = pd.DataFrame(p, index=[0])
         # mem
-        mem = os.path.join(fn, "memory.csv")
+        mem = os.path.join(fn, "memory.csv")  # noqa: PTH118
         mem = pd.read_csv(mem)
         new = pd.concat((new, param, mem), axis=1)
         header["memory"] = mem.columns.values
         header["params"] = param.columns.values
-        err = os.path.join(fn, "errors.csv")
-        if os.path.isfile(err):
+        err = os.path.join(fn, "errors.csv")  # noqa: PTH118
+        if os.path.isfile(err):  # noqa: PTH113
             err = pd.read_csv(err)
             header["errors"] = err.columns.values
             new = pd.concat((new, err), axis=1)
@@ -123,18 +114,24 @@ def read_files(dirnames, specials=None):
         current = current.append(new, ignore_index=True) if current is not None else new
     # ideal speedup account for non-uniform thread/rank ratio across columns
     count = len(current["ranks"])
+
     def cmp_value(j):
         return current["grids.total_macro_cells"][j] / (current["ranks"][j] * current["threads"][j])
+
     values = [cmp_value(i) / cmp_value(0) for i in range(0, count)]
     current.insert(len(specials), "ideal_scaleup", pd.Series(values))
+
     def cmp_value(j):
         return current["ranks"][j] * current["threads"][j]
+
     values = [cmp_value(i) / cmp_value(0) for i in range(0, count)]
     current.insert(len(specials), "ideal_speedup", pd.Series(values))
     cores = [cmp_value(i) for i in range(0, count)]
     current.insert(len(specials), "cores", pd.Series(cores))
+
     def cmp_value(j):
         return current["grids.total_macro_cells"][j] / (current["ranks"][j] * current["threads"][j])
+
     values = [cmp_value(i) / cmp_value(0) for i in range(0, count)]
     current.insert(len(specials), "ideal_time", pd.Series(values))
 
@@ -146,7 +143,7 @@ def sorted_f(frame, ascending=True, sort_cols=None):
     return frame.sort_values(by=sort_cols, na_position="last", ascending=ascending)
 
 
-def speedup(
+def speedup(  # noqa: PLR0913
     headerlist,
     current,
     baseline_name,
@@ -167,29 +164,25 @@ def speedup(
 
             speedup_col = source_col + "_speedup"
             ref_value = source[0]
-            values = [
-                round(ref_value / source[i], round_digits) for i in range(len(source))
-            ]
+            values = [round(ref_value / source[i], round_digits) for i in range(len(source))]
             current[speedup_col] = pd.Series(values)
 
             # relative part of overall absolut timing category
             abspart_col = source_col + "_abspart"
+
             def ref_value(j):
-                return float(current[f"{baseline_name}_{m}_{t}"][j])
-            values = [
-                round(source[i] / ref_value(i), round_digits)
-                for i in range(len(source))
-            ]
+                return float(current[f"{baseline_name}_{m}_{t}"][j])  # noqa: B023
+
+            values = [round(source[i] / ref_value(i), round_digits) for i in range(len(source))]
             current[abspart_col] = pd.Series(values)
 
             # relative part of overall total walltime
             wallpart_col = source_col + "_wallpart"
+
             def ref_value(j):
-                return float(current["{}_{}_{}".format(baseline_name, m, "wall")][j])
-            values = [
-                round(source[i] / ref_value(i), round_digits)
-                for i in range(len(source))
-            ]
+                return float(current["{}_{}_{}".format(baseline_name, m, "wall")][j])  # noqa: B023
+
+            values = [round(source[i] / ref_value(i), round_digits) for i in range(len(source))]
             current[wallpart_col] = pd.Series(values)
 
         for m in measures:
@@ -198,8 +191,10 @@ def speedup(
             threadeff_col = source_col + "_threadeff"
             wall = current["{}_{}_{}".format(sec, m, "wall")]
             source = current[source_col]
+
             def value(j):
-                return float(source[j] / (current["threads"][j] * wall[j]))
+                return float(source[j] / (current["threads"][j] * wall[j]))  # noqa: B023
+
             values = [round(value(i), round_digits) for i in range(len(source))]
             current[threadeff_col] = pd.Series(values)
 
@@ -207,7 +202,7 @@ def speedup(
     return current
 
 
-def scaleup(
+def scaleup(  # noqa: PLR0913
     headerlist,
     current,
     baseline_name,
@@ -228,29 +223,25 @@ def scaleup(
 
             speedup_col = "{}_{}".format(source_col, "scaleup")
             ref_value = source[0]
-            values = [
-                round(ref_value / source[i], round_digits) for i in range(len(source))
-            ]
+            values = [round(ref_value / source[i], round_digits) for i in range(len(source))]
             current[speedup_col] = pd.Series(values)
 
             # relative part of overall absolut timing category
             abspart_col = source_col + "_abspart"
+
             def ref_value(j):
-                return float(current[f"{baseline_name}_{m}_{t}"][j])
-            values = [
-                round(source[i] / ref_value(i), round_digits)
-                for i in range(len(source))
-            ]
+                return float(current[f"{baseline_name}_{m}_{t}"][j])  # noqa: B023
+
+            values = [round(source[i] / ref_value(i), round_digits) for i in range(len(source))]
             current[abspart_col] = pd.Series(values)
 
             # relative part of overall total walltime
             wallpart_col = source_col + "_wallpart"
+
             def ref_value(j):
-                return float(current["{}_{}_{}".format(baseline_name, m, "wall")][j])
-            values = [
-                round(source[i] / ref_value(i), round_digits)
-                for i in range(len(source))
-            ]
+                return float(current["{}_{}_{}".format(baseline_name, m, "wall")][j])  # noqa: B023
+
+            values = [round(source[i] / ref_value(i), round_digits) for i in range(len(source))]
             current[wallpart_col] = pd.Series(values)
 
         for m in measures:
@@ -259,8 +250,10 @@ def scaleup(
             threadeff_col = source_col + "_threadeff"
             wall = current["{}_{}_{}".format(sec, m, "wall")]
             source = current[source_col]
+
             def value(j):
-                return float(source[j] / (current["threads"][j] * wall[j]))
+                return float(source[j] / (current["threads"][j] * wall[j]))  # noqa: B023
+
             values = [round(value(i), round_digits) for i in range(len(source))]
             current[threadeff_col] = pd.Series(values)
 
@@ -278,9 +271,7 @@ def plot_msfem(current, filename_base, series_name=None, xcol=None, original=Non
         "coarse.assemble",
     ]
     measure = "usr"
-    ycols = [
-        f"msfem.{v}_avg_{measure}_{series_name}" for v in categories
-    ] + [f"ideal_{series_name}"]
+    ycols = [f"msfem.{v}_avg_{measure}_{series_name}" for v in categories] + [f"ideal_{series_name}"]
     bar_cols = [f"msfem.{v}_avg_{measure}_abspart" for v in categories[1:]]
     labels = ["Overall", "Coarse solve", "Local assembly + solve", "Coarse assembly", "Ideal"]
     plot_common(
@@ -319,14 +310,12 @@ def plot_fem(current, filename_base, series_name=None, xcol=None):
     xcol = xcol or "cores"
     series_name = series_name or "speedup"
     categories = ["apply", "solve", "constraints", "assemble"]
-    ycols = [f"fem.{v}_avg_wall_speedup" for v in categories] + [
-        "ideal_speedup"
-    ]
+    ycols = [f"fem.{v}_avg_wall_speedup" for v in categories] + ["ideal_speedup"]
     labels = ["Overall", "Solve", "Constraints", "Assembly", "Ideal"]
     plot_common(current, filename_base, ycols, labels, categories)
 
 
-def plot_common(
+def plot_common(  # noqa: PLR0913
     current,
     filename_base,
     ycols,
@@ -344,7 +333,7 @@ def plot_common(
     plt.figure()
     color_map = color_map or color_util.discrete_cmap(len(labels), bg_color=bg_color)
     subplot = current.plot(x=xcol, y=ycols, colormap=color_map, figsize=(6.3, 3.5))
-    # [‘solid’ | ‘dashed’, ‘dashdot’, ‘dotted’ | (offset, on - off - dash - seq) | '-' | '--' | '-.' | ':' | 'None' | ' ' | '']
+    # [‘solid’ | ‘dashed’, ‘dashdot’, ‘dotted’ | (offset, on - off - dash - seq) | '-' | '--' | '-.' | ':' | 'None' | ' ' | '']  # noqa: RUF003
 
     for i, line in enumerate(subplot.lines):
         if i == len(subplot.lines) - 1:
@@ -357,9 +346,7 @@ def plot_common(
         ax.set_xscale("log", basex=logx_base)
     if logy_base is not None:
         ax.set_yscale("log", basey=logy_base)
-    lgd = plt.legend(
-        ax.lines, labels, loc=lgd_loc
-    )  # , bbox_to_anchor=(1.05, 1),  borderaxespad=0., loc=2)
+    lgd = plt.legend(ax.lines, labels, loc=lgd_loc)  # , bbox_to_anchor=(1.05, 1),  borderaxespad=0., loc=2)
     ax.set_facecolor(bg_color)
     lgd.get_frame().set_facecolor(bg_color)
 
@@ -389,7 +376,7 @@ def plot_common(
     )
 
 
-def plot_error(
+def plot_error(  # noqa: PLR0913
     data_frame,
     filename_base,
     error_cols,
@@ -419,9 +406,7 @@ def plot_error(
         ax.set_xscale("log", basex=logx_base)
     if logy_base is not None:
         ax.set_yscale("log", basey=logy_base)
-    lgd = plt.legend(
-        ax.lines, labels, loc=2
-    )  # , bbox_to_anchor=(1.05, 1),  borderaxespad=0., loc=2)
+    lgd = plt.legend(ax.lines, labels, loc=2)  # , bbox_to_anchor=(1.05, 1),  borderaxespad=0., loc=2)
 
     common = common_substring(error_cols)
     for fmt in FIGURE_OUTPUTS:

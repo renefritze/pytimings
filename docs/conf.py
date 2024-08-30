@@ -25,7 +25,7 @@ root_dir = (this_dir / "..").resolve()
 sys.path.insert(0, str(root_dir))
 sys.path.insert(0, str(this_dir))
 
-import pytimings
+import pytimings  # noqa: E402
 
 # -- General configuration ---------------------------------------------
 

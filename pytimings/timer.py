@@ -48,9 +48,7 @@ class NoTimerError(Exception):
         self.section = section
         self.timings = timings or global_timings
         avail = "Available sections: " + ",".join(self.timings._known_timers_map.keys())
-        super().__init__(
-            f"trying to access timer for unknown section '{section}'\n{avail}"
-        )
+        super().__init__(f"trying to access timer for unknown section '{section}'\n{avail}")
 
 
 class TimingData:
@@ -76,9 +74,7 @@ class TimingData:
     def delta(self):
         delta_times = self._end_times or self._get()
 
-        wall = (
-            delta_times[WALL_TIME] - self._start_times[WALL_TIME]
-        ) * TO_SECONDS_FACTOR
+        wall = (delta_times[WALL_TIME] - self._start_times[WALL_TIME]) * TO_SECONDS_FACTOR
         # kernel resource usage already is in seconds
         return TimingDelta(
             wall,
@@ -94,9 +90,7 @@ def _default_timer_dict_entry():
 class Timings:
     def __init__(self):
         self._commited_deltas: dict[str, TimingDelta] = {}
-        self._known_timers_map: dict[str, tuple[bool, Optional[TimingData]]] = (
-            defaultdict(_default_timer_dict_entry)
-        )
+        self._known_timers_map: dict[str, tuple[bool, Optional[TimingData]]] = defaultdict(_default_timer_dict_entry)
         self.extra_data = dict()
         self.reset()
 
@@ -156,7 +150,7 @@ class Timings:
         try:
             return self._commited_deltas[section_name]
         except KeyError:
-            raise NoTimerError(section_name, self)
+            raise NoTimerError(section_name, self)  # noqa: B904
 
     def output_files(self, output_dir: Path, csv_base: str, per_rank=False) -> None:
         """creates one file local to each MPI-rank (no global averaging)
@@ -171,7 +165,7 @@ class Timings:
         ensure_directory_exists(output_dir)
         if per_rank:
             filename = output_dir / f"{csv_base}_p{rank:08d}.csv"
-            with open(filename, "w") as outfile:
+            with open(filename, "w") as outfile:  # noqa: PTH123
                 self.output_all_measures(outfile, get_local_communicator())
         tmp_out = StringIO()
         # all ranks have to participate in the data generation
@@ -180,7 +174,7 @@ class Timings:
         if rank == 0:
             a_filename = output_dir / f"{csv_base}.csv"
             tmp_out.seek(0)
-            open(a_filename, "w").write(tmp_out.read())
+            open(a_filename, "w").write(tmp_out.read())  # noqa: PTH123
             return a_filename
 
     def output_console(self):
@@ -188,9 +182,7 @@ class Timings:
         from rich import box, console, table
 
         csl = console.Console()
-        tbl = table.Table(
-            show_header=True, header_style="bold blue", box=box.SIMPLE_HEAVY
-        )
+        tbl = table.Table(show_header=True, header_style="bold blue", box=box.SIMPLE_HEAVY)
         tbl.add_column("Extra")
         tbl.add_column("Data")
         for key, value in self.extra_data.items():
@@ -198,9 +190,7 @@ class Timings:
         if len(self.extra_data):
             csl.print(tbl)
 
-        tbl = table.Table(
-            show_header=True, header_style="bold magenta", box=box.SIMPLE_HEAVY
-        )
+        tbl = table.Table(show_header=True, header_style="bold magenta", box=box.SIMPLE_HEAVY)
         tbl.add_column("Section")
         tbl.add_column(
             "Walltime (HH:MM:SS)",
@@ -233,7 +223,7 @@ class Timings:
         weight = 1 / comm.size
 
         for section, delta in self._commited_deltas.items():
-            delta = delta._asdict()
+            delta = delta._asdict()  # noqa: PLW2901
             wall = delta[WALL_TIME]
             usr = delta[USER_TIME]
             syst = delta[SYS_TIME]
@@ -247,9 +237,7 @@ class Timings:
                     [f"{section}_max_sys", comm.max(syst)],
                 ]
             )
-        csv_file.writerows(
-            [[f"pytimings::data::{k}", v] for k, v in self.extra_data.items()]
-        )
+        csv_file.writerows([[f"pytimings::data::{k}", v] for k, v in self.extra_data.items()])
         csv_file.writerow(
             [
                 "pytimings::data::_sections",
@@ -286,13 +274,11 @@ def scoped_timing(section_name, log_function=None, timings=None, format=""):
     finally:
         try:
             previous_wall = timings.walltime(section_name)
-        except:
+        except:  # noqa: E722
             previous_wall = 0
         delta = timings.stop(section_name)
         if log_function:
-            log_function(
-                f"Executing {section_name} took {delta.wall-previous_wall:^{format}}s"
-            )
+            log_function(f"Executing {section_name} took {delta.wall-previous_wall:^{format}}s")
 
 
 @contextmanager
@@ -309,9 +295,7 @@ def cummulative_scoped_timing(section_name, log_function=None, timings=None, for
     finally:
         delta = timings.stop(section_name)
         if log_function:
-            log_function(
-                f"Executing {section_name} cummulatively took {delta.wall:^{format}}s"
-            )
+            log_function(f"Executing {section_name} cummulatively took {delta.wall:^{format}}s")
 
 
 def function_timer(section_name=None, log_function=None, timings=None):

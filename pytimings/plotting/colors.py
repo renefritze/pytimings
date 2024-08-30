@@ -3,7 +3,7 @@
 import matplotlib as mpl
 
 
-def getHueVector(amount):
+def getHueVector(amount):  # noqa: N802
     level = 0
     while (1 << level) < amount:
         level += 1
@@ -12,7 +12,7 @@ def getHueVector(amount):
     return getHueVectorRec(out, amount, level)
 
 
-def getHueVectorRec(out, amount, level):
+def getHueVectorRec(out, amount, level):  # noqa: N802
     if level <= 1:
         if len(out) < amount:
             out.append(0.0)
@@ -29,7 +29,7 @@ def getHueVectorRec(out, amount, level):
         return out
 
 
-def getColourPalette(size):
+def getColourPalette(size):  # noqa: N802
     result = []  # colors
     huevector = []  # doubles
     satvalbifurcatepos = 0
@@ -46,9 +46,7 @@ def getColourPalette(size):
         hue = huevector[i]
         saturation = 1
         value = 1
-        switccolors = (
-            i % 3
-        )  # ; // why only 3 and not all combinations? because it's easy, plus the bisection limit
+        switccolors = i % 3  # ; // why only 3 and not all combinations? because it's easy, plus the bisection limit
         # cannot be divided integer by it
 
         if i % bisectionlimit == 0:
@@ -56,18 +54,14 @@ def getColourPalette(size):
             toinsert = satvalbifurcatepos + 1
             satvalsplittings.insert(
                 toinsert,
-                (
-                    satvalsplittings[satvalbifurcatepos]
-                    - satvalsplittings[satvalbifurcatepos + 1]
-                )
-                / 2
+                (satvalsplittings[satvalbifurcatepos] - satvalsplittings[satvalbifurcatepos + 1]) / 2
                 + satvalsplittings[satvalbifurcatepos + 1],
             )
             satvalbifurcatepos += 2
 
         if switccolors == 1:
             saturation = satvalsplittings[satvalbifurcatepos - 1]
-        elif switccolors == 2:
+        elif switccolors == 2:  # noqa: PLR2004
             value = satvalsplittings[satvalbifurcatepos - 1]
 
         hue += 0.17  # ; // use as starting point a zone where color band is narrow so that small variations means
@@ -84,7 +78,7 @@ def getColourPalette(size):
 def contrast_ratio(color_a, color_b):
     def _lum(c):
         index = float(c) * 255
-        if index < 0.03928:
+        if index < 0.03928:  # noqa: PLR2004
             return index / 12.92
         else:
             return ((index + 0.055) / 1.055) ** 2.4
@@ -95,7 +89,7 @@ def contrast_ratio(color_a, color_b):
     return (_rel(color_a) + 0.05) / (_rel(color_b) + 0.05)
 
 
-def getColourPaletteCheat(size, filter_colors=None, bg_color=(1, 1, 1)):
+def getColourPaletteCheat(size, filter_colors=None, bg_color=(1, 1, 1)):  # noqa: N802
     filter_colors = filter_colors or []
     k = []
     org_size = size
@@ -105,7 +99,7 @@ def getColourPaletteCheat(size, filter_colors=None, bg_color=(1, 1, 1)):
         k = [
             p
             for p in set(getColourPalette(size))
-            if p not in filter_colors and contrast_ratio(p, bg_color) < 0.6
+            if p not in filter_colors and contrast_ratio(p, bg_color) < 0.6  # noqa: PLR2004
         ]
     for p in k:
         print(f"{p} ratio: {contrast_ratio(p, bg_color)}")
@@ -113,9 +107,7 @@ def getColourPaletteCheat(size, filter_colors=None, bg_color=(1, 1, 1)):
 
 
 def discrete_cmap(count, bg_color=(255, 255, 255)):
-    cmap = mpl.colors.ListedColormap(
-        getColourPaletteCheat(count, bg_color=bg_color), "indexed"
-    )
+    cmap = mpl.colors.ListedColormap(getColourPaletteCheat(count, bg_color=bg_color), "indexed")
     mpl.cm.register_cmap(cmap=cmap)
     return cmap
 

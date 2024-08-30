@@ -7,7 +7,7 @@ import sys
 
 from setuptools import find_packages, setup
 
-sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.dirname(__file__))  # noqa: PTH120
 import dependencies
 import versioneer
 
@@ -16,7 +16,7 @@ install_requires = dependencies.install_requires
 setup_requires = dependencies.setup_requires()
 install_suggests = dependencies.install_suggests
 
-with open("README.md") as readme_file:
+with open("README.md") as readme_file:  # noqa: PTH123
     readme = readme_file.read()
 
 setup(

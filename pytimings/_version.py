@@ -47,7 +47,7 @@ def get_config():
     return cfg
 
 
-class NotThisMethod(Exception):
+class NotThisMethod(Exception):  # noqa: N818
     """Exception raised if a method is not valid for the current scenario."""
 
 
@@ -68,7 +68,7 @@ def register_vcs_handler(vcs, method):  # decorator
     return decorate
 
 
-def run_command(commands, args, cwd=None, verbose=False, hide_stderr=False, env=None):
+def run_command(commands, args, cwd=None, verbose=False, hide_stderr=False, env=None):  # noqa: PLR0913
     """Call the given command(s)."""
     assert isinstance(commands, list)
     p = None
@@ -115,7 +115,7 @@ def versions_from_parentdir(parentdir_prefix, root, verbose):
     rootdirs = []
 
     for _i in range(3):
-        dirname = os.path.basename(root)
+        dirname = os.path.basename(root)  # noqa: PTH119
         if dirname.startswith(parentdir_prefix):
             return {
                 "version": dirname[len(parentdir_prefix) :],
@@ -126,12 +126,10 @@ def versions_from_parentdir(parentdir_prefix, root, verbose):
             }
         else:
             rootdirs.append(root)
-            root = os.path.dirname(root)  # up a level
+            root = os.path.dirname(root)  # up a level  # noqa: PTH120
 
     if verbose:
-        print(
-            f"Tried directories {rootdirs!s} but none started with prefix {parentdir_prefix}"
-        )
+        print(f"Tried directories {rootdirs!s} but none started with prefix {parentdir_prefix}")
     raise NotThisMethod("rootdir doesn't start with parentdir_prefix")
 
 
@@ -144,7 +142,7 @@ def git_get_keywords(versionfile_abs):
     # _version.py.
     keywords = {}
     try:
-        f = open(versionfile_abs)
+        f = open(versionfile_abs)  # noqa: PTH123
         for line in f.readlines():
             if line.strip().startswith("git_refnames ="):
                 mo = re.search(r'=\s*"(.*)"', line)
@@ -190,7 +188,7 @@ def git_versions_from_keywords(keywords, tag_prefix, verbose):
     refs = set([r.strip() for r in refnames.strip("()").split(",")])
     # starting in git-1.8.3, tags are listed as "tag: foo-1.0" instead of
     # just "foo-1.0". If we see a "tag: " prefix, prefer those.
-    TAG = "tag: "
+    TAG = "tag: "  # noqa: N806
     tags = set([r[len(TAG) :] for r in refs if r.startswith(TAG)])
     if not tags:
         # Either we're using git < 1.8.3, or there really are no tags. We use
@@ -238,9 +236,9 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
     expanded, and _version.py hasn't already been rewritten with a short
     version string, meaning we're inside a checked out source tree.
     """
-    GITS = ["git"]
+    GITS = ["git"]  # noqa: N806
     if sys.platform == "win32":
-        GITS = ["git.cmd", "git.exe"]
+        GITS = ["git.cmd", "git.exe"]  # noqa: N806
 
     out, rc = run_command(GITS, ["rev-parse", "--git-dir"], cwd=root, hide_stderr=True)
     if rc != 0:
@@ -320,9 +318,7 @@ def git_pieces_from_vcs(tag_prefix, root, verbose, run_command=run_command):
         pieces["distance"] = int(count_out)  # total number of commits
 
     # commit date: see ISO-8601 comment in git_versions_from_keywords()
-    date = run_command(GITS, ["show", "-s", "--format=%ci", "HEAD"], cwd=root)[
-        0
-    ].strip()
+    date = run_command(GITS, ["show", "-s", "--format=%ci", "HEAD"], cwd=root)[0].strip()
     # Use only the last line.  Previous lines may contain GPG signature
     # information.
     date = date.splitlines()[-1]
@@ -533,7 +529,7 @@ def get_versions():
         # tree (where the .git directory might live) to this file. Invert
         # this to find the root from __file__.
         for _i in cfg.versionfile_source.split("/"):
-            root = os.path.dirname(root)
+            root = os.path.dirname(root)  # noqa: PTH120
     except NameError:
         return {
             "version": "0+unknown",

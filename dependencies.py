@@ -98,11 +98,11 @@ if __name__ == "__main__":
     import itertools
     import os
 
-    with open(os.path.join(os.path.dirname(__file__), "requirements.txt"), "w") as req:
+    with open(os.path.join(os.path.dirname(__file__), "requirements.txt"), "w") as req:  # noqa: PTH118, PTH120, PTH123
         req.write(note + "\n")
         for module in sorted(set(itertools.chain(install_requires, setup_requires()))):
             req.write(module + "\n")
-    with open(os.path.join(os.path.dirname(__file__), "requirements-optional.txt"), "w") as req:
+    with open(os.path.join(os.path.dirname(__file__), "requirements-optional.txt"), "w") as req:  # noqa: PTH118, PTH120, PTH123
         req.write(note + "\n")
         req.write("-r requirements.txt\n")
         req.write("-r requirements-ci.txt\n")
@@ -116,11 +116,11 @@ if __name__ == "__main__":
             )
         ):
             req.write(module + "\n")
-    with open(os.path.join(os.path.dirname(__file__), "requirements-ci.txt"), "w") as req:
+    with open(os.path.join(os.path.dirname(__file__), "requirements-ci.txt"), "w") as req:  # noqa: PTH118, PTH120, PTH123
         req.write("-r requirements.txt\n")
         req.write(note + "\n")
         for module in sorted(ci_requires):
             req.write(module + "\n")
-    with open(os.path.join(os.path.dirname(__file__), "pyproject.toml"), "w") as toml:
+    with open(os.path.join(os.path.dirname(__file__), "pyproject.toml"), "w") as toml:  # noqa: PTH118, PTH120, PTH123
         toml.write(note)
         toml.write(toml_tpl.format(str(setup_requires())))

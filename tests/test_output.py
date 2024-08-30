@@ -32,7 +32,7 @@ def test_output_per_rank(pickled_timings_object, file_regression, tmp_path):
 
     if fn is not None:
         # we're rank 0 and have written the summary file
-        file_regression.check(_content(open(fn)))
+        file_regression.check(_content(open(fn)))  # noqa: PTH123
 
 
 def test_csv_to_dataframe(tmpdir):

@@ -9,7 +9,7 @@ import sys
 left_marker = sys.argv[1]
 
 for dirname in sys.argv[2:]:
-    assert os.path.isdir(dirname)
+    assert os.path.isdir(dirname)  # noqa: PTH112
     left = dirname.find(left_marker)
     right = dirname.find("_", left + len(left_marker))
     ranks = dirname[left + len(left_marker) : right]

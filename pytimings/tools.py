@@ -9,7 +9,7 @@ from typing import Optional, Union
 def ensure_directory_exists(dirname):
     """create dirname if it doesn't exist"""
     try:
-        os.makedirs(dirname)
+        os.makedirs(dirname)  # noqa: PTH103
     except FileExistsError:
         pass
 
@@ -32,7 +32,7 @@ def output_at_exit(
 
     timings = timings or global_timings
     if files:
-        output_dir = output_dir or os.getcwd()
+        output_dir = output_dir or os.getcwd()  # noqa: PTH109
         output_dir = Path(output_dir)
         ensure_directory_exists(output_dir)
         output = partial(timings.output_files, output_dir=output_dir, csv_base=csv_base)
