@@ -1,6 +1,7 @@
 """Console script for pytimings."""
 
 import sys
+
 import click
 
 

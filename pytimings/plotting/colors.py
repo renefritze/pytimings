@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import matplotlib as mpl
 
@@ -109,7 +108,7 @@ def getColourPaletteCheat(size, filter_colors=None, bg_color=(1, 1, 1)):
             if p not in filter_colors and contrast_ratio(p, bg_color) < 0.6
         ]
     for p in k:
-        print("{} ratio: {}".format(p, contrast_ratio(p, bg_color)))
+        print(f"{p} ratio: {contrast_ratio(p, bg_color)}")
     return k
 
 

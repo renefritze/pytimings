@@ -1,8 +1,8 @@
 from io import StringIO
 
 import pytimings
-from pytimings.tools import generate_example_data
 from pytimings.processing import csv_to_dataframe
+from pytimings.tools import generate_example_data
 
 
 def _content(fd):

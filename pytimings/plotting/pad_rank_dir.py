@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import sys
 import os
 import shutil
+import sys
 
 # left_marker = '_n'
 # left_marker = '.01_'
@@ -14,5 +14,5 @@ for dirname in sys.argv[2:]:
     right = dirname.find("_", left + len(left_marker))
     ranks = dirname[left + len(left_marker) : right]
     new = dirname.replace(left_marker + ranks, left_marker + ranks.zfill(8))
-    print("mv {} {}".format(dirname, new))
+    print(f"mv {dirname} {new}")
     shutil.move(dirname, new)

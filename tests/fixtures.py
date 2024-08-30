@@ -1,12 +1,11 @@
 import pickle
 import re
-import pytest
 import sys
 
+import pytest
 from pytest_regressions.data_regression import DataRegressionFixture
-from pytest_regressions.num_regression import NumericRegressionFixture
 from pytest_regressions.file_regression import FileRegressionFixture
-
+from pytest_regressions.num_regression import NumericRegressionFixture
 
 from pytimings import mpi
 

@@ -3,7 +3,7 @@ import os
 import time
 from functools import partial
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 
 def ensure_directory_exists(dirname):
@@ -15,7 +15,7 @@ def ensure_directory_exists(dirname):
 
 
 def output_at_exit(
-    output_dir: Union[str, Path] = None,
+    output_dir: Optional[Union[str, Path]] = None,
     csv_base="timings",
     timings=None,
     files=True,

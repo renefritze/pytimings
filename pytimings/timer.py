@@ -5,20 +5,20 @@ import functools
 import shutil
 import sys
 import time
+from collections import defaultdict, namedtuple
 from contextlib import contextmanager
 from datetime import timedelta
 from io import StringIO
-from collections import namedtuple, defaultdict
 from pathlib import Path
+from typing import Optional
+
 import psutil
-from typing import Dict, Tuple, Optional
 
 import pytimings
-
 from pytimings.mpi import (
     get_communication_wrapper,
-    get_local_communicator,
     get_communicator,
+    get_local_communicator,
 )
 from pytimings.tools import ensure_directory_exists
 
@@ -93,8 +93,8 @@ def _default_timer_dict_entry():
 
 class Timings:
     def __init__(self):
-        self._commited_deltas: Dict[str, TimingDelta] = {}
-        self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = (
+        self._commited_deltas: dict[str, TimingDelta] = {}
+        self._known_timers_map: dict[str, tuple[bool, Optional[TimingData]]] = (
             defaultdict(_default_timer_dict_entry)
         )
         self.extra_data = dict()
@@ -109,7 +109,7 @@ class Timings:
                 return
         self._known_timers_map[section_name] = (True, TimingData(section_name))
 
-    def stop(self, section_name: str = None) -> int:
+    def stop(self, section_name: Optional[str] = None) -> int:
         """stop named section's counter or all of them if section_name is None"""
         if section_name is None:
             for section in self._known_timers_map.keys():
@@ -132,7 +132,7 @@ class Timings:
             self._commited_deltas[section_name] = new_delta
         return self._commited_deltas[section_name]
 
-    def reset(self, section_name: str = None) -> None:
+    def reset(self, section_name: Optional[str] = None) -> None:
         """set elapsed time back to 0 for a given section or all of them if section_name is None"""
         if section_name is None:
             for section in self._known_timers_map.keys():
@@ -151,7 +151,7 @@ class Timings:
     def add_walltime(self, section_name: str, time: int) -> None:
         self._commited_deltas[section_name] = TimingDelta(time, 0, 0)
 
-    def delta(self, section_name: str) -> Dict[str, int]:
+    def delta(self, section_name: str) -> dict[str, int]:
         """get the full delta dict"""
         try:
             return self._commited_deltas[section_name]
@@ -171,7 +171,7 @@ class Timings:
         ensure_directory_exists(output_dir)
         if per_rank:
             filename = output_dir / f"{csv_base}_p{rank:08d}.csv"
-            with open(filename, "wt") as outfile:
+            with open(filename, "w") as outfile:
                 self.output_all_measures(outfile, get_local_communicator())
         tmp_out = StringIO()
         # all ranks have to participate in the data generation
@@ -180,12 +180,12 @@ class Timings:
         if rank == 0:
             a_filename = output_dir / f"{csv_base}.csv"
             tmp_out.seek(0)
-            open(a_filename, "wt").write(tmp_out.read())
+            open(a_filename, "w").write(tmp_out.read())
             return a_filename
 
     def output_console(self):
         """outputs walltime only w/o MPI-rank averaging"""
-        from rich import console, table, box
+        from rich import box, console, table
 
         csl = console.Console()
         tbl = table.Table(
@@ -261,7 +261,7 @@ class Timings:
         if comm.rank == 0:
             shutil.copyfileobj(stash, out)
 
-    def add_extra_data(self, data: [Dict]):
+    def add_extra_data(self, data: [dict]):
         """Use this for something configuration data that makes the csv more informative.
 
         Data is not displayed with console output.
