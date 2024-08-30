@@ -53,7 +53,6 @@ if HAVE_MPI:
 
     _CommunicationWrapper = _MPICommunicationWrapper
 else:
-
     _CommunicationWrapper = _SerialCommunicationWrapper
 
 

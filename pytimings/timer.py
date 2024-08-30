@@ -15,7 +15,11 @@ from typing import Dict, Tuple, Optional
 
 import pytimings
 
-from pytimings.mpi import get_communication_wrapper, get_local_communicator, get_communicator
+from pytimings.mpi import (
+    get_communication_wrapper,
+    get_local_communicator,
+    get_communicator,
+)
 from pytimings.tools import ensure_directory_exists
 
 try:
@@ -43,8 +47,10 @@ class NoTimerError(Exception):
     def __init__(self, section, timings=None):
         self.section = section
         self.timings = timings or global_timings
-        avail = 'Available sections: ' + ','.join(self.timings._known_timers_map.keys())
-        super().__init__(f"trying to access timer for unknown section '{section}'\n{avail}")
+        avail = "Available sections: " + ",".join(self.timings._known_timers_map.keys())
+        super().__init__(
+            f"trying to access timer for unknown section '{section}'\n{avail}"
+        )
 
 
 class TimingData:
@@ -70,7 +76,9 @@ class TimingData:
     def delta(self):
         delta_times = self._end_times or self._get()
 
-        wall = (delta_times[WALL_TIME] - self._start_times[WALL_TIME]) * TO_SECONDS_FACTOR
+        wall = (
+            delta_times[WALL_TIME] - self._start_times[WALL_TIME]
+        ) * TO_SECONDS_FACTOR
         # kernel resource usage already is in seconds
         return TimingDelta(
             wall,
@@ -86,7 +94,9 @@ def _default_timer_dict_entry():
 class Timings:
     def __init__(self):
         self._commited_deltas: Dict[str, TimingDelta] = {}
-        self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = defaultdict(_default_timer_dict_entry)
+        self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = (
+            defaultdict(_default_timer_dict_entry)
+        )
         self.extra_data = dict()
         self.reset()
 
@@ -178,7 +188,9 @@ class Timings:
         from rich import console, table, box
 
         csl = console.Console()
-        tbl = table.Table(show_header=True, header_style="bold blue", box=box.SIMPLE_HEAVY)
+        tbl = table.Table(
+            show_header=True, header_style="bold blue", box=box.SIMPLE_HEAVY
+        )
         tbl.add_column("Extra")
         tbl.add_column("Data")
         for key, value in self.extra_data.items():
@@ -186,7 +198,9 @@ class Timings:
         if len(self.extra_data):
             csl.print(tbl)
 
-        tbl = table.Table(show_header=True, header_style="bold magenta", box=box.SIMPLE_HEAVY)
+        tbl = table.Table(
+            show_header=True, header_style="bold magenta", box=box.SIMPLE_HEAVY
+        )
         tbl.add_column("Section")
         tbl.add_column(
             "Walltime (HH:MM:SS)",
@@ -208,9 +222,9 @@ class Timings:
         mpi_comm = mpi_comm or get_communicator()
         comm = get_communication_wrapper(mpi_comm)
         stash = StringIO()
-        csv_file = csv.writer(stash, lineterminator='\n')
+        csv_file = csv.writer(stash, lineterminator="\n")
         # header
-        csv_file.writerow(['section', 'value'])
+        csv_file.writerow(["section", "value"])
 
         # threadManager().max_threads()
         csv_file.writerow(["threads", 1])
@@ -233,9 +247,16 @@ class Timings:
                     [f"{section}_max_sys", comm.max(syst)],
                 ]
             )
-        csv_file.writerows([[f'pytimings::data::{k}', v] for k, v in self.extra_data.items()])
-        csv_file.writerow(['pytimings::data::_sections', '||'.join(sorted(self._commited_deltas.keys()))])
-        csv_file.writerow(['pytimings::data::_version', pytimings.__version__])
+        csv_file.writerows(
+            [[f"pytimings::data::{k}", v] for k, v in self.extra_data.items()]
+        )
+        csv_file.writerow(
+            [
+                "pytimings::data::_sections",
+                "||".join(sorted(self._commited_deltas.keys())),
+            ]
+        )
+        csv_file.writerow(["pytimings::data::_version", pytimings.__version__])
         stash.seek(0)
         if comm.rank == 0:
             shutil.copyfileobj(stash, out)
@@ -252,7 +273,7 @@ global_timings = Timings()
 
 
 @contextmanager
-def scoped_timing(section_name, log_function=None, timings=None, format=''):
+def scoped_timing(section_name, log_function=None, timings=None, format=""):
     """Start timer on entering block scope, stop it (and optionally output) on exiting.
 
     The printout will only show walltime for the current scope.
@@ -269,11 +290,13 @@ def scoped_timing(section_name, log_function=None, timings=None, format=''):
             previous_wall = 0
         delta = timings.stop(section_name)
         if log_function:
-            log_function(f"Executing {section_name} took {delta.wall-previous_wall:^{format}}s")
+            log_function(
+                f"Executing {section_name} took {delta.wall-previous_wall:^{format}}s"
+            )
 
 
 @contextmanager
-def cummulative_scoped_timing(section_name, log_function=None, timings=None, format=''):
+def cummulative_scoped_timing(section_name, log_function=None, timings=None, format=""):
     """Start timer on entering block scope, stop it (and optionally output) on exiting.
 
     The printout will show the cummulated walltime for all scopes with this section name.
@@ -286,7 +309,9 @@ def cummulative_scoped_timing(section_name, log_function=None, timings=None, for
     finally:
         delta = timings.stop(section_name)
         if log_function:
-            log_function(f"Executing {section_name} cummulatively took {delta.wall:^{format}}s")
+            log_function(
+                f"Executing {section_name} cummulatively took {delta.wall:^{format}}s"
+            )
 
 
 def function_timer(section_name=None, log_function=None, timings=None):
@@ -294,7 +319,9 @@ def function_timer(section_name=None, log_function=None, timings=None):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
             with scoped_timing(
-                section_name=section_name or function.__qualname__, log_function=log_function, timings=timings
+                section_name=section_name or function.__qualname__,
+                log_function=log_function,
+                timings=timings,
             ):
                 return function(*args, **kwargs)
 

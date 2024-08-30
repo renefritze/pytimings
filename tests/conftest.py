@@ -1,4 +1,4 @@
-""" This makes sure all our fixtures are available to all tests
+"""This makes sure all our fixtures are available to all tests
 
 Individual test modules MUST NOT import fixtures from `tests.fixtures`,
 as this can have strange side effects.

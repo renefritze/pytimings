@@ -19,8 +19,8 @@ if mpi.HAVE_MPI:
 def use_mpi(request, monkeypatch):
     use_mpi = request.param
     if (not use_mpi) and mpi.HAVE_MPI:
-        monkeypatch.delattr('mpi4py.MPI')
-        monkeypatch.setattr('pytimings.mpi.HAVE_MPI', False)
+        monkeypatch.delattr("mpi4py.MPI")
+        monkeypatch.setattr("pytimings.mpi.HAVE_MPI", False)
 
 
 @pytest.fixture
@@ -32,8 +32,8 @@ def timings_object(request, use_mpi):
 
 @pytest.fixture
 def pickled_timings_object(request, use_mpi, shared_datadir):
-    filename = f'nested.mpi_{mpi.HAVE_MPI}.pickle'
-    obj = pickle.load(open(shared_datadir / filename, 'rb'))
+    filename = f"nested.mpi_{mpi.HAVE_MPI}.pickle"
+    obj = pickle.load(open(shared_datadir / filename, "rb"))
     obj.extra_data = {}
     return obj
 
@@ -52,11 +52,11 @@ def _make_regression_fixture(base_type, fname):
             super_basename = re.sub(r"[\W]", "_", self.request.node.name)
             ranks = mpi.get_communication_wrapper().size
             assert ranks > 0
-            basename = f'{super_basename}_r{ranks}'
-        print(f'checking basename {basename}')
+            basename = f"{super_basename}_r{ranks}"
+        print(f"checking basename {basename}")
         super(self.__class__, self).check(data_dict, basename=basename)
 
-    new_type = type(f'Mpi{base_type.__name__}', (base_type,), {'check': check})
+    new_type = type(f"Mpi{base_type.__name__}", (base_type,), {"check": check})
 
     @pytest.fixture()
     def maker(datadir, original_datadir, request):
@@ -67,14 +67,14 @@ def _make_regression_fixture(base_type, fname):
 
 
 for _rtype, _fname in (
-    (DataRegressionFixture, 'data_regression'),
-    (NumericRegressionFixture, 'num_regression'),
-    (FileRegressionFixture, 'file_regression'),
+    (DataRegressionFixture, "data_regression"),
+    (NumericRegressionFixture, "num_regression"),
+    (FileRegressionFixture, "file_regression"),
 ):
-    _fname = f'mpi_{_fname}'
+    _fname = f"mpi_{_fname}"
     _new_type, _fixture = _make_regression_fixture(_rtype, _fname)
     locals()[_fname] = _fixture
 
 
 def is_windows_platform():
-    return sys.platform == 'win32' or sys.platform == 'cygwin'
+    return sys.platform == "win32" or sys.platform == "cygwin"
