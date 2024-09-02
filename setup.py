@@ -49,7 +49,7 @@ setup(
     keywords='pytimings',
     name='pytimings',
     packages=find_packages(include=['pytimings', 'pytimings.*']),
-    url='https://github.com/WWU-AMM/pytimings',
+    url='https://github.com/renefritze/pytimings',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     zip_safe=False,
