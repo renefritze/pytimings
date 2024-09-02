@@ -1,0 +1,27 @@
+---
+codecov:
+  notify:
+    after_n_builds: 1
+coverage:
+  status:
+    patch:
+      default: false   # disable default status
+      source:
+        target: 80%
+        paths:
+        - pytimings/
+        - scripts/
+      tests:
+        target: 0%
+        paths:
+        - tests/
+    project:
+      default: false   # disable default status
+      source:          # report coverage status for source files
+        target: 80%
+        paths:
+        - pytimings/
+      tests:           # report coverage status for tests...
+        target: 0%     # ... but let the check always pass
+        paths:
+        - tests/
