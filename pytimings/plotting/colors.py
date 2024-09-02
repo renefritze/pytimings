@@ -91,15 +91,14 @@ def contrast_ratio(color_a, color_b):
 def get_colour_palette_cheat(size, filter_colors=None, bg_color=(1, 1, 1)):
     filter_colors = filter_colors or []
     k = []
-    org_size = size
-    while len(k) < org_size:
-        size += 1
-        k = [p for p in set(get_colour_palette(size)) if p not in filter_colors]
+    target_len = size
+    while len(k) < target_len:
         k = [
             p
             for p in set(get_colour_palette(size))
             if p not in filter_colors and contrast_ratio(p, bg_color) < 0.6  # noqa: PLR2004
         ]
+        size += 1
     for p in k:
         print(f"{p} ratio: {contrast_ratio(p, bg_color)}")
     return k
