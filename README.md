@@ -1,18 +1,17 @@
 PyTimings
 =========
 
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/renefritze/pytimings/main.svg)](https://results.pre-commit.ci/latest/github/renefritze/pytimings/main)
 [![image](https://img.shields.io/pypi/v/pytimings.svg)](https://pypi.python.org/pypi/pytimings)
-
-[![image](https://github.com/WWU-AMM/pytimings/workflows/pytest/badge.svg)](https://github.com/WWU-AMM/pytimings/actions)
-
 [![Documentation Status](https://readthedocs.org/projects/pytimings/badge/?version=latest)](https://pytimings.readthedocs.io/en/latest/?badge=latest)
+
 
 
 MPI Aware section timings
 
 -   Free software: BSD license
 -   Documentation: <https://pytimings.readthedocs.io>.
--   [![Live examples](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/WWU-AMM/pytimings/HEAD?filepath=docs%2Fexamples%2F)
+-   [![Live examples](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/renefritze/pytimings/HEAD?filepath=docs%2Fexamples%2F)
 
 
 Features

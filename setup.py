@@ -2,11 +2,12 @@
 
 """The setup script."""
 
-from setuptools import setup, find_packages
-import sys
 import os
+import sys
 
-sys.path.append(os.path.dirname(__file__))
+from setuptools import find_packages, setup
+
+sys.path.append(os.path.dirname(__file__))  # noqa: PTH120
 import dependencies
 import versioneer
 
@@ -15,28 +16,28 @@ install_requires = dependencies.install_requires
 setup_requires = dependencies.setup_requires()
 install_suggests = dependencies.install_suggests
 
-with open('README.md') as readme_file:
+with open("README.md") as readme_file:  # noqa: PTH123
     readme = readme_file.read()
 
 setup(
     author="René Fritze",
-    author_email='coding@fritze.me',
-    python_requires='>=3.7',
+    author_email="coding@fritze.me",
+    python_requires=">=3.7",
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: BSD License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
     ],
     description="MPI Aware section timings",
     entry_points={
-        'console_scripts': [
-            'pytimings=pytimings.cli:main',
+        "console_scripts": [
+            "pytimings=pytimings.cli:main",
         ],
     },
     tests_require=tests_require,
@@ -44,12 +45,12 @@ setup(
     extras_require=dependencies.extras(),
     license="BSD license",
     long_description=readme,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
     include_package_data=True,
-    keywords='pytimings',
-    name='pytimings',
-    packages=find_packages(include=['pytimings', 'pytimings.*']),
-    url='https://github.com/WWU-AMM/pytimings',
+    keywords="pytimings",
+    name="pytimings",
+    packages=find_packages(include=["pytimings", "pytimings.*"]),
+    url="https://github.com/renefritze/pytimings",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     zip_safe=False,

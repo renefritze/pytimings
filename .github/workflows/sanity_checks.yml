@@ -4,12 +4,17 @@ name: Git
 
 jobs:
   message-check:
-    name: Block Autosquash Commits
+    name: Sanity Checks
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Block Autosquash Commits
       uses: xt0rted/block-autosquash-commits-action@v2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+    - uses: pre-commit/action@v3.0.1

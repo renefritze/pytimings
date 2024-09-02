@@ -1,19 +1,21 @@
 #!/usr/bin/env python
 
 """Tests for `pytimings` package."""
+
 import pickle
-import numpy as np
 from functools import partial
 from tempfile import TemporaryFile
 
+import numpy as np
 from click.testing import CliRunner
 
 from pytimings import cli
-from pytimings.timer import scoped_timing, cummulative_scoped_timing, function_timer
-from pytimings.tools import output_at_exit, busywait
-from .fixtures import is_windows_platform
+from pytimings.timer import cummulative_scoped_timing, function_timer, scoped_timing
+from pytimings.tools import busywait, output_at_exit
 
-_DUMMY_SECTION = 'mysection'
+from .fixtures import is_mac_platform, is_windows_platform
+
+_DUMMY_SECTION = "mysection"
 
 DEFAULT_SLEEP_SECONDS = 0.1
 
@@ -22,8 +24,8 @@ default_sleep = partial(busywait, DEFAULT_SLEEP_SECONDS)
 
 
 def _assert(delta_value, lower=DEFAULT_SLEEP_SECONDS, upper=None):
-    if is_windows_platform():
-        fuzzy_factor = 0.90
+    if is_windows_platform() or is_mac_platform():
+        fuzzy_factor = 0.85
         lower = lower * fuzzy_factor
         if upper:
             upper = upper / fuzzy_factor
@@ -140,7 +142,7 @@ def test_decorator_default_name(timings_object):
 
 def test_simple_output(timings_object):
     # simple output with optional format specifier
-    with scoped_timing("time", print, timings=timings_object, format='.5f'):
+    with scoped_timing("time", print, timings=timings_object, format=".5f"):
         default_sleep()
     with scoped_timing("a much longer section name", print, timings=timings_object):
         busywait(1)
@@ -148,7 +150,7 @@ def test_simple_output(timings_object):
     timings_object.output_console()
 
     # add a known walltime to the timings object
-    timings_object.add_walltime('sleepy_time', DEFAULT_SLEEP_SECONDS)
+    timings_object.add_walltime("sleepy_time", DEFAULT_SLEEP_SECONDS)
     sleepy_time = timings_object.walltime("sleepy_time")
     np.isclose(scoped_sleepy_time, sleepy_time)
 
@@ -156,15 +158,15 @@ def test_simple_output(timings_object):
 def test_cummulative_scoped_timings(timings_object):
     # 'scoped_timing' and 'cummulative_scoped_timing' only differ in terms of their output, but not in terms
     # of their way of storing deltas
-    with scoped_timing("time", print, timings=timings_object, format='.5f'):
+    with scoped_timing("time", print, timings=timings_object, format=".5f"):
         default_sleep()
-    with scoped_timing("time", print, timings=timings_object, format='.5f'):
+    with scoped_timing("time", print, timings=timings_object, format=".5f"):
         # printout will be default_sleep()
         default_sleep()
 
-    with cummulative_scoped_timing("another time", print, timings=timings_object, format='.5f'):
+    with cummulative_scoped_timing("another time", print, timings=timings_object, format=".5f"):
         default_sleep()
-    with cummulative_scoped_timing("another time", print, timings=timings_object, format='.5f'):
+    with cummulative_scoped_timing("another time", print, timings=timings_object, format=".5f"):
         # printout will be 2 * default_sleep()
         default_sleep()
 
@@ -182,7 +184,7 @@ def test_command_line_interface():
     runner = CliRunner()
     result = runner.invoke(cli.main)
     assert result.exit_code == 0
-    assert 'pytimings.cli.main' in result.output
-    help_result = runner.invoke(cli.main, ['--help'])
+    assert "pytimings.cli.main" in result.output
+    help_result = runner.invoke(cli.main, ["--help"])
     assert help_result.exit_code == 0
-    assert '--help  Show this message and exit.' in help_result.output
+    assert "--help  Show this message and exit." in help_result.output

@@ -5,17 +5,21 @@ import functools
 import shutil
 import sys
 import time
+from collections import defaultdict, namedtuple
 from contextlib import contextmanager
 from datetime import timedelta
 from io import StringIO
-from collections import namedtuple, defaultdict
 from pathlib import Path
+from typing import Optional
+
 import psutil
-from typing import Dict, Tuple, Optional
 
 import pytimings
-
-from pytimings.mpi import get_communication_wrapper, get_local_communicator, get_communicator
+from pytimings.mpi import (
+    get_communication_wrapper,
+    get_communicator,
+    get_local_communicator,
+)
 from pytimings.tools import ensure_directory_exists
 
 try:
@@ -43,7 +47,7 @@ class NoTimerError(Exception):
     def __init__(self, section, timings=None):
         self.section = section
         self.timings = timings or global_timings
-        avail = 'Available sections: ' + ','.join(self.timings._known_timers_map.keys())
+        avail = "Available sections: " + ",".join(self.timings._known_timers_map.keys())
         super().__init__(f"trying to access timer for unknown section '{section}'\n{avail}")
 
 
@@ -85,8 +89,8 @@ def _default_timer_dict_entry():
 
 class Timings:
     def __init__(self):
-        self._commited_deltas: Dict[str, TimingDelta] = {}
-        self._known_timers_map: Dict[str, Tuple[bool, Optional[TimingData]]] = defaultdict(_default_timer_dict_entry)
+        self._commited_deltas: dict[str, TimingDelta] = {}
+        self._known_timers_map: dict[str, tuple[bool, Optional[TimingData]]] = defaultdict(_default_timer_dict_entry)
         self.extra_data = dict()
         self.reset()
 
@@ -99,7 +103,7 @@ class Timings:
                 return
         self._known_timers_map[section_name] = (True, TimingData(section_name))
 
-    def stop(self, section_name: str = None) -> int:
+    def stop(self, section_name: Optional[str] = None) -> int:
         """stop named section's counter or all of them if section_name is None"""
         if section_name is None:
             for section in self._known_timers_map.keys():
@@ -122,7 +126,7 @@ class Timings:
             self._commited_deltas[section_name] = new_delta
         return self._commited_deltas[section_name]
 
-    def reset(self, section_name: str = None) -> None:
+    def reset(self, section_name: Optional[str] = None) -> None:
         """set elapsed time back to 0 for a given section or all of them if section_name is None"""
         if section_name is None:
             for section in self._known_timers_map.keys():
@@ -141,12 +145,12 @@ class Timings:
     def add_walltime(self, section_name: str, time: int) -> None:
         self._commited_deltas[section_name] = TimingDelta(time, 0, 0)
 
-    def delta(self, section_name: str) -> Dict[str, int]:
+    def delta(self, section_name: str) -> dict[str, int]:
         """get the full delta dict"""
         try:
             return self._commited_deltas[section_name]
         except KeyError:
-            raise NoTimerError(section_name, self)
+            raise NoTimerError(section_name, self)  # noqa: B904
 
     def output_files(self, output_dir: Path, csv_base: str, per_rank=False) -> None:
         """creates one file local to each MPI-rank (no global averaging)
@@ -161,7 +165,7 @@ class Timings:
         ensure_directory_exists(output_dir)
         if per_rank:
             filename = output_dir / f"{csv_base}_p{rank:08d}.csv"
-            with open(filename, "wt") as outfile:
+            with open(filename, "w") as outfile:  # noqa: PTH123
                 self.output_all_measures(outfile, get_local_communicator())
         tmp_out = StringIO()
         # all ranks have to participate in the data generation
@@ -170,12 +174,12 @@ class Timings:
         if rank == 0:
             a_filename = output_dir / f"{csv_base}.csv"
             tmp_out.seek(0)
-            open(a_filename, "wt").write(tmp_out.read())
+            open(a_filename, "w").write(tmp_out.read())  # noqa: PTH123
             return a_filename
 
     def output_console(self):
         """outputs walltime only w/o MPI-rank averaging"""
-        from rich import console, table, box
+        from rich import box, console, table
 
         csl = console.Console()
         tbl = table.Table(show_header=True, header_style="bold blue", box=box.SIMPLE_HEAVY)
@@ -208,9 +212,9 @@ class Timings:
         mpi_comm = mpi_comm or get_communicator()
         comm = get_communication_wrapper(mpi_comm)
         stash = StringIO()
-        csv_file = csv.writer(stash, lineterminator='\n')
+        csv_file = csv.writer(stash, lineterminator="\n")
         # header
-        csv_file.writerow(['section', 'value'])
+        csv_file.writerow(["section", "value"])
 
         # threadManager().max_threads()
         csv_file.writerow(["threads", 1])
@@ -219,7 +223,7 @@ class Timings:
         weight = 1 / comm.size
 
         for section, delta in self._commited_deltas.items():
-            delta = delta._asdict()
+            delta = delta._asdict()  # noqa: PLW2901
             wall = delta[WALL_TIME]
             usr = delta[USER_TIME]
             syst = delta[SYS_TIME]
@@ -233,14 +237,19 @@ class Timings:
                     [f"{section}_max_sys", comm.max(syst)],
                 ]
             )
-        csv_file.writerows([[f'pytimings::data::{k}', v] for k, v in self.extra_data.items()])
-        csv_file.writerow(['pytimings::data::_sections', '||'.join(sorted(self._commited_deltas.keys()))])
-        csv_file.writerow(['pytimings::data::_version', pytimings.__version__])
+        csv_file.writerows([[f"pytimings::data::{k}", v] for k, v in self.extra_data.items()])
+        csv_file.writerow(
+            [
+                "pytimings::data::_sections",
+                "||".join(sorted(self._commited_deltas.keys())),
+            ]
+        )
+        csv_file.writerow(["pytimings::data::_version", pytimings.__version__])
         stash.seek(0)
         if comm.rank == 0:
             shutil.copyfileobj(stash, out)
 
-    def add_extra_data(self, data: [Dict]):
+    def add_extra_data(self, data: [dict]):
         """Use this for something configuration data that makes the csv more informative.
 
         Data is not displayed with console output.
@@ -252,7 +261,7 @@ global_timings = Timings()
 
 
 @contextmanager
-def scoped_timing(section_name, log_function=None, timings=None, format=''):
+def scoped_timing(section_name, log_function=None, timings=None, format=""):
     """Start timer on entering block scope, stop it (and optionally output) on exiting.
 
     The printout will only show walltime for the current scope.
@@ -265,7 +274,7 @@ def scoped_timing(section_name, log_function=None, timings=None, format=''):
     finally:
         try:
             previous_wall = timings.walltime(section_name)
-        except:
+        except:  # noqa: E722
             previous_wall = 0
         delta = timings.stop(section_name)
         if log_function:
@@ -273,7 +282,7 @@ def scoped_timing(section_name, log_function=None, timings=None, format=''):
 
 
 @contextmanager
-def cummulative_scoped_timing(section_name, log_function=None, timings=None, format=''):
+def cummulative_scoped_timing(section_name, log_function=None, timings=None, format=""):
     """Start timer on entering block scope, stop it (and optionally output) on exiting.
 
     The printout will show the cummulated walltime for all scopes with this section name.
@@ -294,7 +303,9 @@ def function_timer(section_name=None, log_function=None, timings=None):
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
             with scoped_timing(
-                section_name=section_name or function.__qualname__, log_function=log_function, timings=timings
+                section_name=section_name or function.__qualname__,
+                log_function=log_function,
+                timings=timings,
             ):
                 return function(*args, **kwargs)
 

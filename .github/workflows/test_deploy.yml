@@ -8,10 +8,10 @@ on: [pull_request]
 jobs:
   deploy:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         # to guarantee proper versioneer pickup of last tag
         fetch-depth: 0

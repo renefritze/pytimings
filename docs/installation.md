@@ -31,7 +31,7 @@ You can either clone the public repository:
 
 ```{code-block} console
 
-$ git clone git://github.com/WWU-AMM/pytimings
+$ git clone git://github.com/renefritze/pytimings
 
 ```
 
@@ -39,7 +39,7 @@ Or download the [tarball][tarball]:
 
 ```{code-block} console
 
-$ curl -OJL https://github.com/WWU-AMM/pytimings/tarball/main
+$ curl -OJL https://github.com/renefritze/pytimings/tarball/main
 
 ```
 
@@ -51,6 +51,6 @@ $ pip install .
 
 ```
 
-[github repo]: https://github.com/WWU-AMM/pytimings
+[github repo]: https://github.com/renefritze/pytimings
 
-[tarball]: https://github.com/WWU-AMM/pytimings/tarball/main
+[tarball]: https://github.com/renefritze/pytimings/tarball/main
