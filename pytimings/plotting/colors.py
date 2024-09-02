@@ -3,16 +3,16 @@
 import matplotlib as mpl
 
 
-def getHueVector(amount):  # noqa: N802
+def get_hue_vector(amount):
     level = 0
     while (1 << level) < amount:
         level += 1
 
     out = []
-    return getHueVectorRec(out, amount, level)
+    return get_hue_vector_rec(out, amount, level)
 
 
-def getHueVectorRec(out, amount, level):  # noqa: N802
+def get_hue_vector_rec(out, amount, level):
     if level <= 1:
         if len(out) < amount:
             out.append(0.0)
@@ -20,18 +20,17 @@ def getHueVectorRec(out, amount, level):  # noqa: N802
             out.append(0.5)
         return out
     else:
-        out = getHueVectorRec(out, amount, level - 1)
+        out = get_hue_vector_rec(out, amount, level - 1)
         lower = len(out)
-        out = getHueVectorRec(out, amount, level - 1)
+        out = get_hue_vector_rec(out, amount, level - 1)
         upper = len(out)
         for i in range(lower, upper):
             out[i] += 1.0 / (1 << level)
         return out
 
 
-def getColourPalette(size):  # noqa: N802
+def get_colour_palette(size):
     result = []  # colors
-    huevector = []  # doubles
     satvalbifurcatepos = 0
     satvalsplittings = []  # doubles
     if len(satvalsplittings) == 0:
@@ -40,7 +39,7 @@ def getColourPalette(size):  # noqa: N802
         satvalsplittings.append(0)
         satvalbifurcatepos = 0
 
-    huevector = getHueVector(size)
+    huevector = get_hue_vector(size)
     bisectionlimit = 20
     for i in range(len(result), size):
         hue = huevector[i]
@@ -89,26 +88,25 @@ def contrast_ratio(color_a, color_b):
     return (_rel(color_a) + 0.05) / (_rel(color_b) + 0.05)
 
 
-def getColourPaletteCheat(size, filter_colors=None, bg_color=(1, 1, 1)):  # noqa: N802
+def get_colour_palette_cheat(size, filter_colors=None, bg_color=(1, 1, 1)):
     filter_colors = filter_colors or []
     k = []
-    org_size = size
-    while len(k) < org_size:
-        size += 1
-        k = [p for p in set(getColourPalette(size)) if p not in filter_colors]
+    target_len = size
+    while len(k) < target_len:
         k = [
             p
-            for p in set(getColourPalette(size))
+            for p in set(get_colour_palette(size))
             if p not in filter_colors and contrast_ratio(p, bg_color) < 0.6  # noqa: PLR2004
         ]
+        size += 1
     for p in k:
         print(f"{p} ratio: {contrast_ratio(p, bg_color)}")
     return k
 
 
-def discrete_cmap(count, bg_color=(255, 255, 255)):
-    cmap = mpl.colors.ListedColormap(getColourPaletteCheat(count, bg_color=bg_color), "indexed")
-    mpl.cm.register_cmap(cmap=cmap)
+def discrete_cmap(count, bg_color=(255, 255, 255), name="indexed"):
+    cmap = mpl.colors.ListedColormap(get_colour_palette_cheat(count, bg_color=bg_color), name)
+    mpl.colormaps.register(cmap=cmap)
     return cmap
 
 
@@ -117,6 +115,6 @@ if __name__ == "__main__":
     # print k
     # k = set(k)
     # print k
-    print(getColourPalette(4))
-    print(getColourPaletteCheat(4))
-    print(getColourPaletteCheat(4, [(0.0, 0, 0.0)]))
+    print(get_colour_palette(4))
+    print(get_colour_palette_cheat(4))
+    print(get_colour_palette_cheat(4, [(0.0, 0, 0.0)]))
