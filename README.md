@@ -11,7 +11,7 @@ MPI Aware section timings
 
 -   Free software: BSD license
 -   Documentation: <https://pytimings.readthedocs.io>.
--   [![Live examples](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/WWU-AMM/pytimings/HEAD?filepath=docs%2Fexamples%2F)
+-   [![Live examples](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/renefritze/pytimings/HEAD?filepath=docs%2Fexamples%2F)
 
 
 Features

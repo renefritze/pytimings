@@ -18,7 +18,7 @@ jobs:
           - {os: windows-2022, py: '3.12'}
           - {os: macOS-14, py: '3.11'}
           - {os: ubuntu-24.04, py: '3.10'}
-          - {os: ubuntu-24.04, py: '3.13-dev'}
+          - {os: ubuntu-24.04, py: '3.12'}
 
     env:
       SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
