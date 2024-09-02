@@ -59,11 +59,11 @@ jobs:
       run: |
         brew install openmpi
         pip install mpi4py
-    - name: (disabled) run pytest
+    - name: run pytest
       if: contains(matrix.config.os, 'windows')
       run: |
-        print mpiexec -n 2 pytest
-    - name: (disabled) run pytest
+        mpiexec -n 2 pytest
+    - name: run pytest
       if: ${{ ! contains(matrix.config.os, 'windows') }}
       run: |
-        echo mpirun -np 2 pytest
+        mpirun -np 2 pytest
