@@ -62,8 +62,8 @@ jobs:
     - name: run pytest
       if: contains(matrix.config.os, 'windows')
       run: |
-        mpiexec -n 2 pytest
+        mpiexec -n 2 pytest --no-cov
     - name: run pytest
       if: ${{ ! contains(matrix.config.os, 'windows') }}
       run: |
-        mpirun -np 2 pytest
+        mpirun -np 2 pytest --no-cov
