@@ -1,5 +1,7 @@
 """Main module."""
 
+from __future__ import annotations
+
 import csv
 import functools
 import shutil
@@ -10,7 +12,6 @@ from contextlib import contextmanager
 from datetime import timedelta
 from io import StringIO
 from pathlib import Path
-from typing import Optional
 
 import psutil
 
@@ -90,7 +91,7 @@ def _default_timer_dict_entry():
 class Timings:
     def __init__(self):
         self._commited_deltas: dict[str, TimingDelta] = {}
-        self._known_timers_map: dict[str, tuple[bool, Optional[TimingData]]] = defaultdict(_default_timer_dict_entry)
+        self._known_timers_map: dict[str, tuple[bool, TimingData | None]] = defaultdict(_default_timer_dict_entry)
         self.extra_data = dict()
         self.reset()
 
@@ -103,7 +104,7 @@ class Timings:
                 return
         self._known_timers_map[section_name] = (True, TimingData(section_name))
 
-    def stop(self, section_name: Optional[str] = None) -> int:
+    def stop(self, section_name: str | None = None) -> int:
         """stop named section's counter or all of them if section_name is None"""
         if section_name is None:
             for section in self._known_timers_map.keys():
@@ -126,7 +127,7 @@ class Timings:
             self._commited_deltas[section_name] = new_delta
         return self._commited_deltas[section_name]
 
-    def reset(self, section_name: Optional[str] = None) -> None:
+    def reset(self, section_name: str | None = None) -> None:
         """set elapsed time back to 0 for a given section or all of them if section_name is None"""
         if section_name is None:
             for section in self._known_timers_map.keys():
@@ -152,7 +153,7 @@ class Timings:
         except KeyError:
             raise NoTimerError(section_name, self)  # noqa: B904
 
-    def output_files(self, output_dir: Path, csv_base: str, per_rank=False) -> None:
+    def output_files(self, output_dir: Path, csv_base: str, per_rank=False) -> None | Path:
         """creates one file local to each MPI-rank (no global averaging)
         and one single rank-0 file with all combined/averaged measures
 
