@@ -17,6 +17,10 @@ def test_output_all_measures(pickled_timings_object, mpi_file_regression):
     with StringIO() as out:
         timing.output_all_measures(out)
         out.seek(0)
+        # checking/loading the files on makes sense on rank0
+        if mpi.HAVE_MPI and mpi.get_communication_wrapper().rank != 0:
+            return
+
         mpi_file_regression.check(_content(out))
 
 
@@ -25,6 +29,10 @@ def test_output_simple(pickled_timings_object, file_regression):
     with StringIO() as out:
         timing.output_all_measures(out)
         out.seek(0)
+        # checking/loading the files on makes sense on rank0
+        if mpi.HAVE_MPI and mpi.get_communication_wrapper().rank != 0:
+            return
+
         file_regression.check(_content(out))
 
 
