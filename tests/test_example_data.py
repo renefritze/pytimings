@@ -34,7 +34,7 @@ def test_generate_example_data_creates_files_with_correct_names():
         patch("pytimings.tools.busywait"),
     ):
         mock_timings = MockTimings.return_value
-        mock_timings.output_files.side_effect = lambda output_dir, csv_base, per_rank: f"{csv_base}.csv"
+        mock_timings.output_files.side_effect = lambda output_dir, csv_base: f"{csv_base}.csv"
         files = generate_example_data("mock_output_dir", number_of_runs=3)
         assert files == ["example_speedup_00001.csv", "example_speedup_00002.csv"]
 

@@ -1,7 +1,6 @@
 from io import StringIO
 
 import pytimings
-from pytimings import mpi
 from pytimings.processing import csv_to_dataframe
 from pytimings.tools import generate_example_data
 
@@ -12,12 +11,12 @@ def _content(fd):
     return "".join(fd.readlines()[:-1])
 
 
-def test_output_all_measures(pickled_timings_object, mpi_file_regression):
+def test_output_all_measures(pickled_timings_object, file_regression):
     timing = pickled_timings_object
     with StringIO() as out:
         timing.output_all_measures(out)
         out.seek(0)
-        mpi_file_regression.check(_content(out))
+        file_regression.check(_content(out))
 
 
 def test_output_simple(pickled_timings_object, file_regression):
@@ -38,9 +37,6 @@ def test_output_per_rank(pickled_timings_object, file_regression, tmp_path):
 
 def test_csv_to_dataframe(tmpdir):
     files = generate_example_data(tmpdir)
-    # checking/loading the files on makes sense on rank0
-    if mpi.HAVE_MPI and mpi.get_communication_wrapper().rank != 0:
-        return
     assert all(f is not None for f in files), files
     assert all(f.is_file() for f in files), files
     frame = csv_to_dataframe(files)

@@ -1,0 +1,12 @@
+section,value
+threads,1
+root_section.nested_1.leaf_section_usr,0.14000000001396984
+root_section.nested_1.leaf_section_wall,300.447047
+root_section.nested_1.leaf_section_sys,0.029999999998835847
+root_section.nested_1_usr,0.27000000001862645
+root_section.nested_1_wall,501.072164
+root_section.nested_1_sys,0.16000000000349246
+root_section_usr,0.35000000009313226
+root_section_wall,601.4659389999999
+root_section_sys,0.1900000000023283
+pytimings::data::_sections,root_section||root_section.nested_1||root_section.nested_1.leaf_section
