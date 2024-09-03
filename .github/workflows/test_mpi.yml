@@ -6,7 +6,11 @@ on:
     branches:
     - main
 
-name: paralell pytest
+concurrency:
+  group: ${{ github.ref }}_${{ github.workflow }}
+  cancel-in-progress: true
+
+name: parallel pytest
 jobs:
   py-check:
     runs-on: ${{ matrix.config.os }}
@@ -23,10 +27,6 @@ jobs:
     env:
       SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
     steps:
-    - name: Cancel Previous Runs
-      uses: styfle/cancel-workflow-action@0.12.1
-      with:
-        access_token: ${{ github.token }}
     - name: Checkout
       uses: actions/checkout@v4
     - name: Setup Python
@@ -37,33 +37,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install .[ci]
-    - name: Install MPI (linux)
-      if: contains(matrix.config.os, 'ubuntu')
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mpi-default-dev
-        pip install mpi4py
-    - name: Download Microsoft MPI
-      if: contains(matrix.config.os, 'windows')
-      run: (new-object net.webclient).DownloadFile("https://download.microsoft.com/download/a/5/2/a5207ca5-1203-491a-8fb8-906fd68ae623/msmpisetup.exe",
-        "msmpisetup.exe")
-      shell: powershell
-    - name: Install MPI (win)
-      if: contains(matrix.config.os, 'windows')
-      run: |
-        msmpisetup.exe -unattend -minimal
-        pip install mpi4py
-      shell: cmd
-    - name: Install MPI (osx)
-      if: contains(matrix.config.os, 'macOS')
-      run: |
-        brew install openmpi
-        pip install mpi4py
+    - uses:  mpi4py/setup-mpi@v1.2.5
     - name: run pytest
-      if: contains(matrix.config.os, 'windows')
-      run: |
-        mpiexec -n 2 pytest --no-cov
-    - name: run pytest
-      if: ${{ ! contains(matrix.config.os, 'windows') }}
       run: |
         mpirun -np 2 pytest --no-cov
