@@ -16,11 +16,6 @@ from pathlib import Path
 import psutil
 
 import pytimings
-from pytimings.mpi import (
-    get_communication_wrapper,
-    get_communicator,
-    get_local_communicator,
-)
 from pytimings.tools import ensure_directory_exists
 
 try:
@@ -153,30 +148,14 @@ class Timings:
         except KeyError:
             raise NoTimerError(section_name, self)  # noqa: B904
 
-    def output_files(self, output_dir: Path, csv_base: str, per_rank=False) -> None | Path:
-        """creates one file local to each MPI-rank (no global averaging)
-        and one single rank-0 file with all combined/averaged measures
-
-
-        """
-        communication = get_communication_wrapper()
-        rank = communication.rank
-
+    def output_files(self, output_dir: Path, csv_base: str) -> Path:
+        """output all recorded measures to a csv file"""
         output_dir = Path(output_dir)
         ensure_directory_exists(output_dir)
-        if per_rank:
-            filename = output_dir / f"{csv_base}_p{rank:08d}.csv"
-            with open(filename, "w") as outfile:  # noqa: PTH123
-                self.output_all_measures(outfile, get_local_communicator())
-        tmp_out = StringIO()
-        # all ranks have to participate in the data generation
-        self.output_all_measures(tmp_out, get_communicator())
-        # but only rank 0 needs to write it
-        if rank == 0:
-            a_filename = output_dir / f"{csv_base}.csv"
-            tmp_out.seek(0)
-            open(a_filename, "w").write(tmp_out.read())  # noqa: PTH123
-            return a_filename
+        outfile = output_dir / f"{csv_base}.csv"
+        with outfile.open("w") as out:
+            self.output_all_measures(out)
+        return outfile
 
     def output_console(self):
         """outputs walltime only w/o MPI-rank averaging"""
@@ -204,14 +183,12 @@ class Timings:
         else:
             csl.print("No timings were recorded")
 
-    def output_all_measures(self, out=None, mpi_comm=None) -> None:
+    def output_all_measures(self, out=None) -> None:
         """output all recorded measures
 
         Outputs average, min, max over all MPI processes associated to mpi_comm
         """
         out = out or sys.stdout
-        mpi_comm = mpi_comm or get_communicator()
-        comm = get_communication_wrapper(mpi_comm)
         stash = StringIO()
         csv_file = csv.writer(stash, lineterminator="\n")
         # header
@@ -219,9 +196,6 @@ class Timings:
 
         # threadManager().max_threads()
         csv_file.writerow(["threads", 1])
-        csv_file.writerow(["ranks", comm.size])
-
-        weight = 1 / comm.size
 
         for section, delta in self._commited_deltas.items():
             delta = delta._asdict()  # noqa: PLW2901
@@ -230,12 +204,9 @@ class Timings:
             syst = delta[SYS_TIME]
             csv_file.writerows(
                 [
-                    [f"{section}_avg_usr", comm.sum(usr) * weight],
-                    [f"{section}_max_usr", comm.max(usr)],
-                    [f"{section}_avg_wall", comm.sum(wall) * weight],
-                    [f"{section}_max_wall", comm.max(wall)],
-                    [f"{section}_avg_sys", comm.sum(syst) * weight],
-                    [f"{section}_max_sys", comm.max(syst)],
+                    [f"{section}_usr", usr],
+                    [f"{section}_wall", wall],
+                    [f"{section}_sys", syst],
                 ]
             )
         csv_file.writerows([[f"pytimings::data::{k}", v] for k, v in self.extra_data.items()])
@@ -247,8 +218,7 @@ class Timings:
         )
         csv_file.writerow(["pytimings::data::_version", pytimings.__version__])
         stash.seek(0)
-        if comm.rank == 0:
-            shutil.copyfileobj(stash, out)
+        shutil.copyfileobj(stash, out)
 
     def add_extra_data(self, data: [dict]):
         """Use this for something configuration data that makes the csv more informative.

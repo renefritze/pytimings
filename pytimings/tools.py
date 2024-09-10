@@ -60,11 +60,5 @@ def generate_example_data(output_dir, number_of_runs=10):
             busywait(number_of_runs / 10 / i)
         with scoped_timing("quadratic", timings=timings):
             busywait(number_of_runs / 10 / i**2)
-        files.append(
-            timings.output_files(
-                output_dir=output_dir,
-                csv_base=f"example_speedup_{i:05}",
-                per_rank=False,
-            )
-        )
+        files.append(timings.output_files(output_dir=output_dir, csv_base=f"example_speedup_{i:05}"))
     return files

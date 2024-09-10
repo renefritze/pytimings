@@ -7,7 +7,7 @@ PyTimings
 
 
 
-MPI Aware section timings
+Section timings
 
 -   Free software: BSD license
 -   Documentation: <https://pytimings.readthedocs.io>.
@@ -18,7 +18,6 @@ Features
 --------
 
 - Automatic, decorator-based code timings
-- Aware of MPI parallel runs
 - manual control
 - structured (CSV/terminal) output
 - matplotlib plotting of results

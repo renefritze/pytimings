@@ -40,5 +40,5 @@ We'll then read those example files.
 from pytimings.processing import csv_to_dataframe
 
 dataframe = csv_to_dataframe(filenames, sort=True)
-dataframe.plot(x='pytimings::data::run', y=['quadratic_max_wall', 'linear_max_wall'], logy=True)
+dataframe.plot(x='pytimings::data::run', y=['quadratic_wall', 'linear_wall'], logy=True)
 ```
