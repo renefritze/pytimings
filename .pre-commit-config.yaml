@@ -1,22 +1,24 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: v0.6.3
+    rev: v0.11.10
     hooks:
       - id: ruff
+        exclude: pytimings/_version\.py
       - id: ruff-format
+        exclude: pytimings/_version\.py
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: destroyed-symlinks
   - repo: https://github.com/tcort/markdown-link-check
-    rev: v3.12.2
+    rev: v3.13.7
     hooks:
     - id: markdown-link-check
   - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
-    rev: v1.7.1.15
+    rev: v1.7.7.23
     hooks:
       - id: actionlint
         additional_dependencies: [pyflakes>=3.2, shellcheck-py>=0.10]
@@ -25,13 +27,13 @@ repos:
     hooks:
     - id: shellcheck
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: 3.0.3
+    rev: 3.2.1
     hooks:
     - id: editorconfig-checker
       alias: ec
   # this should go last since it will fix line endings broken by other tools
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
     - id: no-commit-to-branch
       args: [--branch, main]
