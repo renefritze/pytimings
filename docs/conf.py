@@ -168,3 +168,4 @@ autoapi_keep_files = True
 autoapi_template_dir = this_dir / "_templates" / "autoapi"
 
 nb_execution_mode = "cache"
+nb_execution_timeout = 120
