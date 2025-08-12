@@ -13,7 +13,7 @@ jobs:
       uses: xt0rted/block-autosquash-commits-action@v2
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
