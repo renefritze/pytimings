@@ -7,8 +7,10 @@ on: [pull_request]
 
 jobs:
   deploy:
-
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
     - uses: actions/checkout@v6
@@ -27,6 +29,4 @@ jobs:
     - name: Publish distribution 📦 to Test PyPI
       uses: pypa/gh-action-pypi-publish@v1.12.4
       with:
-        user: __token__
-        password: ${{ secrets.TEST_PYPI_TOKEN }}
         repository-url: https://test.pypi.org/legacy/
