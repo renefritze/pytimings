@@ -94,7 +94,3 @@ include = ["pytimings", "pytimings.*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "pytimings.__version__" }
-
-[tool.black]
-line-length = 120
-skip-string-normalization = true
