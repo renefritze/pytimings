@@ -19,7 +19,7 @@ This is the preferred method to install PyTimings, as it will always install the
 If you don't have [pip][pip] installed, this [Python installation guide][python installation guide] can guide
 you through the process.
 
-[pip]: https://pip.pypa.io
+[pip]: https://pip.pypa.io/en/stable/
 
 [python installation guide]: http://docs.python-guide.org/en/latest/starting/installation/
 
