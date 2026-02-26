@@ -39,6 +39,7 @@ repos:
       args: [--branch, main]
     - id: trailing-whitespace
     - id: check-added-large-files
+      exclude: ^uv\.lock$
     - id: check-case-conflict
     - id: mixed-line-ending
       args: [--fix=lf]

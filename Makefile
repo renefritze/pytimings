@@ -8,7 +8,7 @@ export $(shell sed 's/=.*//' $(ENV_FILE))
 .PHONY:  deps black docs
 
 deps:
-	./dependencies.py
+	uv sync --extra ci
 
 black:
 	black examples pytimings tests
