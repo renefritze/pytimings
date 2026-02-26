@@ -94,3 +94,12 @@ include = ["pytimings", "pytimings.*"]
 
 [tool.setuptools.dynamic]
 version = { attr = "pytimings.__version__" }
+
+[tool.ruff]
+extend-exclude = ["pytimings/_version.py"]
+
+[tool.ruff.lint]
+extend-ignore = [
+    "PLC0415",  # Import outside top-level (intentional lazy imports)
+    "UP031",    # Use format specifiers (in versioneer-generated code)
+]

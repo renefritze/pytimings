@@ -5,6 +5,7 @@ repos:
     hooks:
       - id: ruff
         exclude: pytimings/_version\.py
+        args: [--extend-ignore, "PLC0415"]
       - id: ruff-format
         exclude: pytimings/_version\.py
   - repo: https://github.com/pre-commit/pre-commit-hooks

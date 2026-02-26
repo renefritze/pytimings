@@ -93,7 +93,7 @@ class Timings:
     def start(self, section_name: str) -> None:
         """set this to begin a named section"""
         if section_name in self._known_timers_map.keys():
-            running, data = self._known_timers_map[section_name]
+            running, _data = self._known_timers_map[section_name]
             if running:
                 # TODO log info
                 return
