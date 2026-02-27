@@ -152,7 +152,7 @@ class Timings:
         except KeyError:
             # Check if the timer was started but not stopped
             is_unstopped = section_name in self._known_timers_map
-            raise NoTimerError(section_name, self, is_unstopped=is_unstopped)  # noqa: B904
+            raise NoTimerError(section_name, self, is_unstopped=is_unstopped) from None
 
     def output_files(self, output_dir: Path, csv_base: str) -> Path:
         """output all recorded measures to a csv file"""
