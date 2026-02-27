@@ -11,6 +11,9 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    environment:
+      name: test-pypi
+      url: https://test.pypi.org/p/pytimings
 
     steps:
     - uses: actions/checkout@v6
