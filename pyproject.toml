@@ -7,13 +7,12 @@ name = "pytimings"
 dynamic = ["version"]
 description = "MPI Aware section timings"
 readme = "README.md"
-license = { text = "BSD license" }
+license = "BSD-3-Clause"
 authors = [{ name = "Rene Fritze", email = "coding@fritze.me" }]
 keywords = ["pytimings"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
