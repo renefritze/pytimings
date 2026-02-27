@@ -5,13 +5,13 @@ ENV_FILE?=.env
 include $(ENV_FILE)
 export $(shell sed 's/=.*//' $(ENV_FILE))
 
-.PHONY:  deps black docs
+.PHONY: deps format docs
 
 deps:
-	./dependencies.py
+	uv sync --extra ci
 
-black:
-	black examples pytimings tests
+format:
+	uv run ruff format pytimings tests
 
 docs:
 	make -C docs html
