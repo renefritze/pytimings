@@ -40,11 +40,15 @@ TimingDelta = namedtuple("TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME])
 
 
 class NoTimerError(Exception):
-    def __init__(self, section, timings=None):
+    def __init__(self, section, timings=None, is_unstopped=False):
         self.section = section
         self.timings = timings or global_timings
-        avail = "Available sections: " + ",".join(self.timings._known_timers_map.keys())
-        super().__init__(f"trying to access timer for unknown section '{section}'\n{avail}")
+        self.is_unstopped = is_unstopped
+        if is_unstopped:
+            super().__init__(f"trying to access timer for section '{section}' that has not been stopped yet")
+        else:
+            avail = "Available sections: " + ",".join(self.timings._known_timers_map.keys())
+            super().__init__(f"trying to access timer for unknown section '{section}'\n{avail}")
 
 
 class TimingData:
@@ -146,7 +150,9 @@ class Timings:
         try:
             return self._commited_deltas[section_name]
         except KeyError:
-            raise NoTimerError(section_name, self)  # noqa: B904
+            # Check if the timer was started but not stopped
+            is_unstopped = section_name in self._known_timers_map
+            raise NoTimerError(section_name, self, is_unstopped=is_unstopped)  # noqa: B904
 
     def output_files(self, output_dir: Path, csv_base: str) -> Path:
         """output all recorded measures to a csv file"""
