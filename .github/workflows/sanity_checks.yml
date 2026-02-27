@@ -14,7 +14,11 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
     - uses: actions/checkout@v6
-    - uses: actions/setup-python@v6
+    - uses: astral-sh/setup-uv@v6
       with:
         python-version: '3.12'
-    - uses: pre-commit/action@v3.0.1
+        enable-cache: true
+    - name: Install dependencies
+      run: uv sync --frozen --extra ci
+    - name: Run pre-commit
+      run: uv run --frozen pre-commit run -a
