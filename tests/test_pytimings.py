@@ -7,10 +7,11 @@ from functools import partial
 from tempfile import TemporaryFile
 
 import numpy as np
+import pytest
 from click.testing import CliRunner
 
 from pytimings import cli
-from pytimings.timer import cummulative_scoped_timing, function_timer, scoped_timing
+from pytimings.timer import NoTimerError, cummulative_scoped_timing, function_timer, scoped_timing
 from pytimings.tools import busywait, output_at_exit
 
 from .fixtures import is_mac_platform, is_windows_platform
@@ -188,3 +189,35 @@ def test_command_line_interface():
     help_result = runner.invoke(cli.main, ["--help"])
     assert help_result.exit_code == 0
     assert "--help  Show this message and exit." in help_result.output
+
+
+def test_unstopped_timer_error_message(timings_object):
+    """Test that accessing an unstopped timer gives a clear error message"""
+    timings_object.start("unstopped_timer")
+
+    # Try to get delta without stopping - should give clear error about not being stopped
+    with pytest.raises(NoTimerError) as exc_info:
+        timings_object.delta("unstopped_timer")
+
+    error_msg = str(exc_info.value)
+    assert "has not been stopped yet" in error_msg
+    assert "unstopped_timer" in error_msg
+    # Should NOT say "unknown section" for a started timer
+    assert "unknown section" not in error_msg
+
+
+def test_unknown_timer_error_message(timings_object):
+    """Test that accessing a truly unknown timer gives appropriate error message"""
+    timings_object.start("known_timer")
+    timings_object.stop("known_timer")
+
+    # Try to get delta for a timer that was never started
+    with pytest.raises(NoTimerError) as exc_info:
+        timings_object.delta("non_existent_timer")
+
+    error_msg = str(exc_info.value)
+    assert "unknown section" in error_msg
+    assert "Available sections:" in error_msg
+    assert "known_timer" in error_msg
+    # Should NOT mention "not been stopped yet" for truly unknown timer
+    assert "has not been stopped yet" not in error_msg
