@@ -26,7 +26,7 @@ jobs:
       PYTHON: ${{ matrix.config.py }}
     steps:
     - name: Cancel Previous Runs
-      uses: styfle/cancel-workflow-action@0.13.0
+      uses: styfle/cancel-workflow-action@0.13.1
       with:
         access_token: ${{ github.token }}
     - name: Checkout
@@ -59,7 +59,7 @@ jobs:
     - name: run pytest
       run: uv run --frozen pytest
     - name: "Upload coverage"
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         env_vars: OS,PYTHON
         fail_ci_if_error: true
