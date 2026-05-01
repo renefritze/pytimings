@@ -30,7 +30,7 @@ jobs:
         uv sync --frozen --extra ci
         uv run --frozen --with build==1.4.0 -m build --sdist --wheel --outdir dist/
     - name: Publish distribution 📦 to Test PyPI
-      uses: pypa/gh-action-pypi-publish@v1.13.0
+      uses: pypa/gh-action-pypi-publish@v1.14.0
       with:
         repository-url: https://test.pypi.org/legacy/
         skip-existing: true
