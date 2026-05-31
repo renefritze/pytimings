@@ -2,6 +2,7 @@ import matplotlib
 import pytest
 
 from pytimings.plotting.colors import (
+    _MAX_CONTRAST_RATIO,
     contrast_ratio,
     discrete_cmap,
     get_colour_palette,
@@ -41,8 +42,9 @@ def test_discrete_cmap_rejects_dark_bg_color():
 
 
 def test_get_colour_palette_cheat_creates_correct_number_of_colors():
-    palette = get_colour_palette_cheat(5)
-    assert len(palette) == 5  # noqa: PLR2004
+    count = 5
+    palette = get_colour_palette_cheat(count)
+    assert len(palette) == count
 
 
 def test_get_colour_palette_cheat_handles_zero_colors():
@@ -60,7 +62,7 @@ def test_get_colour_palette_cheat_excludes_filter_colors():
 def test_get_colour_palette_cheat_uses_default_bg_color():
     palette = get_colour_palette_cheat(3)
     for color in palette:
-        assert contrast_ratio(color, (1, 1, 1)) < 0.6  # noqa: PLR2004
+        assert contrast_ratio(color, (1, 1, 1)) < _MAX_CONTRAST_RATIO
 
 
 def test_get_colour_palette_cheat_rejects_dark_bg_color():
@@ -91,8 +93,9 @@ def test_contrast_ratio_handles_low_luminance():
 
 
 def test_get_colour_palette_creates_correct_number_of_colors():
-    palette = get_colour_palette(5)
-    assert len(palette) == 5  # noqa: PLR2004
+    count = 5
+    palette = get_colour_palette(count)
+    assert len(palette) == count
 
 
 def test_get_colour_palette_handles_zero_colors():
