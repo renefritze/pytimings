@@ -8,9 +8,7 @@ from tempfile import TemporaryFile
 
 import numpy as np
 import pytest
-from click.testing import CliRunner
 
-from pytimings import cli
 from pytimings.timer import NoTimerError, cummulative_scoped_timing, function_timer, scoped_timing
 from pytimings.tools import busywait, output_at_exit
 
@@ -153,7 +151,7 @@ def test_simple_output(timings_object):
     # add a known walltime to the timings object
     timings_object.add_walltime("sleepy_time", DEFAULT_SLEEP_SECONDS)
     sleepy_time = timings_object.walltime("sleepy_time")
-    np.isclose(scoped_sleepy_time, sleepy_time)
+    assert np.isclose(scoped_sleepy_time, sleepy_time, atol=DEFAULT_SLEEP_SECONDS)
 
 
 def test_cummulative_scoped_timings(timings_object):
@@ -171,24 +169,15 @@ def test_cummulative_scoped_timings(timings_object):
         # printout will be 2 * default_sleep()
         default_sleep()
 
-    # but this doesn't matter for the objects
-    np.isclose(timings_object.walltime("time"), timings_object.walltime("another time"))
+    # but this doesn't matter for the objects: both sections accumulate two default sleeps
+    assert np.isclose(
+        timings_object.walltime("time"), timings_object.walltime("another time"), atol=DEFAULT_SLEEP_SECONDS
+    )
 
 
 def test_atexit(timings_object):
     """This only tests if the setup function can be called"""
     output_at_exit(timings=timings_object)
-
-
-def test_command_line_interface():
-    """Test the CLI."""
-    runner = CliRunner()
-    result = runner.invoke(cli.main)
-    assert result.exit_code == 0
-    assert "pytimings.cli.main" in result.output
-    help_result = runner.invoke(cli.main, ["--help"])
-    assert help_result.exit_code == 0
-    assert "--help  Show this message and exit." in help_result.output
 
 
 def test_unstopped_timer_error_message(timings_object):

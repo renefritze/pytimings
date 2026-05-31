@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
-import matplotlib as mpl
+import colorsys
+
+__all__ = [
+    "contrast_ratio",
+    "discrete_cmap",
+    "get_colour_palette",
+    "get_colour_palette_cheat",
+    "get_hue_vector",
+    "get_hue_vector_rec",
+]
 
 
 def get_hue_vector(amount):
@@ -67,7 +77,6 @@ def get_colour_palette(size):
         # high change in visual effect
         if hue > 1:
             hue -= 1
-        import colorsys
 
         col = colorsys.hsv_to_rgb(hue, saturation, value)
         result.append(col)
@@ -75,12 +84,13 @@ def get_colour_palette(size):
 
 
 def contrast_ratio(color_a, color_b):
+    """Directional WCAG-style contrast ratio of two RGB colors with channels in [0, 1]."""
+
     def _lum(c):
-        index = float(c) * 255
-        if index < 0.03928:  # noqa: PLR2004
-            return index / 12.92
-        else:
-            return ((index + 0.055) / 1.055) ** 2.4
+        c = float(c)
+        if c <= 0.03928:  # noqa: PLR2004
+            return c / 12.92
+        return ((c + 0.055) / 1.055) ** 2.4
 
     def _rel(rgb):
         return 0.2126 * _lum(rgb[0]) + 0.7152 * _lum(rgb[1]) + 0.0722 * _lum(rgb[2])
@@ -90,31 +100,33 @@ def contrast_ratio(color_a, color_b):
 
 def get_colour_palette_cheat(size, filter_colors=None, bg_color=(1, 1, 1)):
     filter_colors = filter_colors or []
-    k = []
     target_len = size
+    candidate_size = size
+    max_size = size + 1000  # guard against impossible filters (e.g. a dark bg_color)
+    k = []
     while len(k) < target_len:
         k = [
             p
-            for p in set(get_colour_palette(size))
+            for p in set(get_colour_palette(candidate_size))
             if p not in filter_colors and contrast_ratio(p, bg_color) < 0.6  # noqa: PLR2004
         ]
-        size += 1
-    for p in k:
-        print(f"{p} ratio: {contrast_ratio(p, bg_color)}")
-    return k
+        candidate_size += 1
+        if candidate_size > max_size:
+            raise RuntimeError(
+                f"could not find {target_len} colors with sufficient contrast against bg_color={bg_color}"
+            )
+    return k[:target_len]
 
 
 def discrete_cmap(count, bg_color=(255, 255, 255), name="indexed"):
+    import matplotlib as mpl
+
     cmap = mpl.colors.ListedColormap(get_colour_palette_cheat(count, bg_color=bg_color), name)
     mpl.colormaps.register(cmap=cmap)
     return cmap
 
 
 if __name__ == "__main__":
-    # k = getColourPalette( 9 )
-    # print k
-    # k = set(k)
-    # print k
     print(get_colour_palette(4))
     print(get_colour_palette_cheat(4))
     print(get_colour_palette_cheat(4, [(0.0, 0, 0.0)]))

@@ -1,3 +1,2 @@
-pytimings/_version.py export-subst
 # Pickle files (for testing) should always have UNIX line endings.
 *.pickle text eol=lf

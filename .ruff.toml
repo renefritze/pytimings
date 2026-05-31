@@ -8,10 +8,11 @@
 # PTH = flake8-use-pathlib
 # PL = pylint
 lint.select = ["E", "F", "W", "N", "RUF", "I001", "UP", "B", "PTH", "PL"]
-# E501: line too long
-lint.ignore = ["E501"]
+lint.ignore = [
+    "E501",     # line too long
+    "PLC0415",  # import outside top-level (intentional lazy imports)
+]
 fix = true
 line-length = 120
-target-version = "py39"
+target-version = "py313"
 extend-include = [".CMakePresets.json.in", "docs/conf.py.in"]
-extend-exclude = ["versioneer.py"]
