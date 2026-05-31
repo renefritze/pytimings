@@ -180,8 +180,6 @@ def test_atexit(timings_object):
     output_at_exit(timings=timings_object)
 
 
-
-
 def test_unstopped_timer_error_message(timings_object):
     """Test that accessing an unstopped timer gives a clear error message"""
     timings_object.start("unstopped_timer")

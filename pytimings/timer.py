@@ -134,13 +134,14 @@ class Timings:
             self._known_timers_map[section_name][1],
         )  # mark as not running
         timing = self._known_timers_map[section_name][1]
+        assert timing is not None  # a known section always has an associated TimingData
         timing.stop()
         delta = timing.delta()
         if section_name not in self._commited_deltas:
             self._commited_deltas[section_name] = delta
         else:
             previous_delta = self._commited_deltas[section_name]
-            new_delta = TimingDelta(*tuple(map(sum, zip(delta, previous_delta))))
+            new_delta = TimingDelta(*(a + b for a, b in zip(delta, previous_delta, strict=True)))
             self._commited_deltas[section_name] = new_delta
         return self._commited_deltas[section_name]
 
@@ -172,7 +173,7 @@ class Timings:
             is_unstopped = section_name in self._known_timers_map
             raise NoTimerError(section_name, self, is_unstopped=is_unstopped) from None
 
-    def output_files(self, output_dir: Path, csv_base: str) -> Path:
+    def output_files(self, output_dir: str | Path, csv_base: str) -> Path:
         """output all recorded measures to a csv file"""
         output_dir = Path(output_dir)
         ensure_directory_exists(output_dir)
@@ -219,15 +220,11 @@ class Timings:
         csv_file.writerow(["threads", 1])
 
         for section, delta in self._commited_deltas.items():
-            delta = delta._asdict()  # noqa: PLW2901
-            wall = delta[WALL_TIME]
-            usr = delta[USER_TIME]
-            syst = delta[SYS_TIME]
             csv_file.writerows(
                 [
-                    [f"{section}_usr", usr],
-                    [f"{section}_wall", wall],
-                    [f"{section}_sys", syst],
+                    [f"{section}_usr", delta.user],
+                    [f"{section}_wall", delta.wall],
+                    [f"{section}_sys", delta.sys],
                 ]
             )
         csv_file.writerows([[f"pytimings::data::{k}", v] for k, v in self.extra_data.items()])
@@ -274,6 +271,7 @@ def scoped_timing(
         except NoTimerError:
             previous_wall = 0
         delta = timings.stop(section_name)
+        assert delta is not None  # stop() returns the committed delta for a named section
         if log_function:
             log_function(f"Executing {section_name} took {delta.wall - previous_wall:^{format}}s")
 
@@ -296,6 +294,7 @@ def cummulative_scoped_timing(
         yield
     finally:
         delta = timings.stop(section_name)
+        assert delta is not None  # stop() returns the committed delta for a named section
         if log_function:
             log_function(f"Executing {section_name} cummulatively took {delta.wall:^{format}}s")
 
