@@ -12,6 +12,10 @@ __all__ = [
     "get_hue_vector_rec",
 ]
 
+_SWITCH_COLOR_VALUE = 2
+_WCAG_LINEARIZE_THRESHOLD = 0.03928
+_MAX_CONTRAST_RATIO = 0.6
+
 
 def get_hue_vector(amount):
     level = 0
@@ -70,7 +74,7 @@ def get_colour_palette(size):
 
         if switccolors == 1:
             saturation = satvalsplittings[satvalbifurcatepos - 1]
-        elif switccolors == 2:  # noqa: PLR2004
+        elif switccolors == _SWITCH_COLOR_VALUE:
             value = satvalsplittings[satvalbifurcatepos - 1]
 
         hue += 0.17  # ; // use as starting point a zone where color band is narrow so that small variations means
@@ -88,7 +92,7 @@ def contrast_ratio(color_a, color_b):
 
     def _lum(c):
         c = float(c)
-        if c <= 0.03928:  # noqa: PLR2004
+        if c <= _WCAG_LINEARIZE_THRESHOLD:
             return c / 12.92
         return ((c + 0.055) / 1.055) ** 2.4
 
@@ -108,7 +112,7 @@ def get_colour_palette_cheat(size, filter_colors=None, bg_color=(1, 1, 1)):
         k = [
             p
             for p in set(get_colour_palette(candidate_size))
-            if p not in filter_colors and contrast_ratio(p, bg_color) < 0.6  # noqa: PLR2004
+            if p not in filter_colors and contrast_ratio(p, bg_color) < _MAX_CONTRAST_RATIO
         ]
         candidate_size += 1
         if candidate_size > max_size:

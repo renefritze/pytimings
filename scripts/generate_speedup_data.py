@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-import os
 import sys
+from pathlib import Path
 
 from pytimings.tools import generate_example_data
 
 try:
     output_dir = sys.argv[1]
 except IndexError:
-    output_dir = os.getcwd()  # noqa: PTH109
+    output_dir = Path.cwd()
 
 try:
     runs = sys.argv[2]
