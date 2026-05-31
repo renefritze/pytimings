@@ -64,6 +64,12 @@ full = [
 [tool.hatch.version]
 source = "vcs"
 
+# PyPI/TestPyPI reject PEP 440 local version segments (e.g. "+g1234abc"), which
+# hatch-vcs adds by default for untagged commits. Drop them so dev builds from CI
+# remain uploadable (matches the previous versioneer "pep440-pre" behaviour).
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
+
 [tool.hatch.build.targets.wheel]
 packages = ["pytimings"]
 
