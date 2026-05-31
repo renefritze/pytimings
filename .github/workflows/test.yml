@@ -15,13 +15,11 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {os: windows-2022, py: '3.12'}
-        - {os: macOS-14, py: '3.11'}
-        - {os: ubuntu-24.04, py: '3.10'}
-        - {os: ubuntu-24.04, py: '3.12'}
+        - {os: windows-2022, py: '3.13'}
+        - {os: macOS-14, py: '3.13'}
+        - {os: ubuntu-24.04, py: '3.13'}
 
     env:
-      SDKROOT: /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
       OS: ${{ matrix.config.os }}
       PYTHON: ${{ matrix.config.py }}
     steps:
@@ -31,31 +29,19 @@ jobs:
         access_token: ${{ github.token }}
     - name: Checkout
       uses: actions/checkout@v6
+      with:
+        # fetch full history so hatch-vcs can derive the version from the last tag
+        fetch-depth: 0
     - name: Setup uv
       uses: astral-sh/setup-uv@v7
       with:
         python-version: ${{ matrix.config.py }}
         enable-cache: true
-    - name: Install MPI (linux)
-      if: contains(matrix.config.os, 'ubuntu')
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mpi-default-dev
-    - name: Download Microsoft MPI
-      if: contains(matrix.config.os, 'windows')
-      run: (new-object net.webclient).DownloadFile("https://download.microsoft.com/download/a/5/2/a5207ca5-1203-491a-8fb8-906fd68ae623/msmpisetup.exe",
-        "msmpisetup.exe")
-      shell: powershell
-    - name: Install MPI (win)
-      if: contains(matrix.config.os, 'windows')
-      run: |
-        msmpisetup.exe -unattend -minimal
-      shell: cmd
-    - name: Install MPI (osx)
-      if: contains(matrix.config.os, 'macOS')
-      run: brew install openmpi
     - name: Install dependencies
       run: uv sync --frozen --extra full
+    - name: run mypy
+      if: contains(matrix.config.os, 'ubuntu')
+      run: uv run --frozen mypy pytimings
     - name: run pytest
       run: uv run --frozen pytest
     - name: "Upload coverage"

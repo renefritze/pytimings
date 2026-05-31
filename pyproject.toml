@@ -1,11 +1,11 @@
 [build-system]
-requires = ["packaging", "setuptools>=69", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling>=1.27", "hatch-vcs>=0.4,<0.5"]
+build-backend = "hatchling.build"
 
 [project]
 name = "pytimings"
 dynamic = ["version"]
-description = "MPI Aware section timings"
+description = "Section timings"
 readme = "README.md"
 license = "BSD-3-Clause"
 authors = [{ name = "Rene Fritze", email = "coding@fritze.me" }]
@@ -15,90 +15,66 @@ classifiers = [
     "Intended Audience :: Developers",
     "Natural Language :: English",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.13"
 dependencies = [
-    "jupytext",
-    "matplotlib",
-    "packaging",
-    "pandas",
     "psutil",
     "rich",
-    "typer",
 ]
 
 [project.optional-dependencies]
-ci = [
-    "check-manifest",
-    "codecov",
-    "docutils",
-    "numpy",
-    "pre-commit",
-    "pytest",
-    "pytest-cov",
-    "pytest-datadir",
-    "pytest-memprof",
-    "pytest-pycharm",
-    "pytest-regressions",
-    "pytest-timeout",
-    "pytest-xdist",
-    "readme_renderer[md]",
-    "rstcheck",
-    "ruff",
-    "twine",
+plot = [
+    "matplotlib",
+    "pandas",
+]
+notebook = [
+    "jupytext",
 ]
 docs = [
+    "pytimings[notebook,plot]",
     "myst-nb>=0.14.0",
     "python-slugify",
     "sphinx",
     "sphinx-autoapi>=1.8",
 ]
-full = [
+dev = [
     "check-manifest",
     "codecov",
     "docutils",
-    "mpi4py",
-    "myst-nb>=0.14.0",
+    "mypy",
     "numpy",
     "pre-commit",
     "pytest",
     "pytest-cov",
     "pytest-datadir",
-    "pytest-memprof",
-    "pytest-pycharm",
     "pytest-regressions",
     "pytest-timeout",
     "pytest-xdist",
-    "python-slugify",
     "readme_renderer[md]",
     "rstcheck",
     "ruff",
-    "sphinx",
-    "sphinx-autoapi>=1.8",
     "twine",
 ]
-
-[project.scripts]
-pytimings = "pytimings.cli:main"
-
-[tool.setuptools]
-include-package-data = true
-
-[tool.setuptools.packages.find]
-include = ["pytimings", "pytimings.*"]
-
-[tool.setuptools.dynamic]
-version = { attr = "pytimings.__version__" }
-
-[tool.ruff]
-extend-exclude = ["pytimings/_version.py"]
-
-[tool.ruff.lint]
-extend-ignore = [
-    "PLC0415",  # Import outside top-level (intentional lazy imports)
-    "UP031",    # Use format specifiers (in versioneer-generated code)
+full = [
+    "pytimings[plot,notebook,docs,dev]",
 ]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pytimings"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=pytimings --cov-report=xml"
+testpaths = ["tests"]
+
+[tool.coverage.run]
+relative_files = true
+source = ["pytimings", "tests"]
+
+[tool.mypy]
+python_version = "3.13"
+ignore_missing_imports = true

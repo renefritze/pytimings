@@ -1,9 +1,13 @@
 """Top-level package for PyTimings."""
 
-__author__ = """René Fritze"""
+from importlib.metadata import PackageNotFoundError, version
+
+__author__ = "René Fritze"
 __email__ = "coding@fritze.me"
 
-from ._version import get_versions
+try:
+    __version__ = version("pytimings")
+except PackageNotFoundError:  # package is not installed (e.g. running from a source tree)
+    __version__ = "0.0.0+unknown"
 
-__version__ = get_versions()["version"]
-del get_versions
+__all__ = ["__author__", "__email__", "__version__"]

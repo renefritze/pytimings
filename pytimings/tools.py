@@ -1,25 +1,28 @@
+from __future__ import annotations
+
 import atexit
-import os
 import time
 from functools import partial
 from pathlib import Path
-from typing import Optional, Union
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pytimings.timer import Timings
+
+__all__ = ["busywait", "ensure_directory_exists", "generate_example_data", "output_at_exit"]
 
 
-def ensure_directory_exists(dirname):
+def ensure_directory_exists(dirname: str | Path) -> None:
     """create dirname if it doesn't exist"""
-    try:
-        os.makedirs(dirname)  # noqa: PTH103
-    except FileExistsError:
-        pass
+    Path(dirname).mkdir(parents=True, exist_ok=True)
 
 
 def output_at_exit(
-    output_dir: Optional[Union[str, Path]] = None,
-    csv_base="timings",
-    timings=None,
-    files=True,
-    console=True,
+    output_dir: str | Path | None = None,
+    csv_base: str = "timings",
+    timings: Timings | None = None,
+    files: bool = True,
+    console: bool = True,
 ) -> None:
     """Register output methods to be executed at Python interpreter exit
 
@@ -32,8 +35,7 @@ def output_at_exit(
 
     timings = timings or global_timings
     if files:
-        output_dir = output_dir or os.getcwd()  # noqa: PTH109
-        output_dir = Path(output_dir)
+        output_dir = Path(output_dir) if output_dir is not None else Path.cwd()
         ensure_directory_exists(output_dir)
         output = partial(timings.output_files, output_dir=output_dir, csv_base=csv_base)
         atexit.register(output)
@@ -41,7 +43,7 @@ def output_at_exit(
         atexit.register(timings.output_console)
 
 
-def busywait(secs):
+def busywait(secs: float) -> float:
     """busywait simulates load, so user time won't be 0 in timings"""
     init_time = time.time()
     while time.time() < init_time + secs:
@@ -49,7 +51,7 @@ def busywait(secs):
     return time.time() - init_time
 
 
-def generate_example_data(output_dir, number_of_runs=10):
+def generate_example_data(output_dir: str | Path, number_of_runs: int = 10) -> list[Path]:
     from pytimings.timer import Timings, scoped_timing
 
     files = []

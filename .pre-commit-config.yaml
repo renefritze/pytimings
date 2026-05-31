@@ -4,10 +4,7 @@ repos:
     rev: 0839f92796ae388643a08a21640a029b322be5c2  # frozen: v0.15.2
     hooks:
       - id: ruff
-        exclude: pytimings/_version\.py
-        args: [--extend-ignore, "PLC0415"]
       - id: ruff-format
-        exclude: pytimings/_version\.py
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:

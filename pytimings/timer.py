@@ -4,62 +4,80 @@ from __future__ import annotations
 
 import csv
 import functools
+import logging
 import shutil
 import sys
 import time
-from collections import defaultdict, namedtuple
+from collections import defaultdict
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from datetime import timedelta
 from io import StringIO
 from pathlib import Path
+from typing import NamedTuple
 
 import psutil
 
 import pytimings
 from pytimings.tools import ensure_directory_exists
 
-try:
-    PERF_COUNTER_FUNCTION = time.perf_counter_ns
-    THREAD_TIME_FUNCTION = time.time_ns
-    TO_SECONDS_FACTOR = 1e-9
-except AttributeError:
-    PERF_COUNTER_FUNCTION = time.perf_counter
-    try:
-        THREAD_TIME_FUNCTION = time.thread_time
-    except AttributeError:
-        # TODO Log warning
-        THREAD_TIME_FUNCTION = time.process_time
-    TO_SECONDS_FACTOR = 1
+logger = logging.getLogger(__name__)
+
+PERF_COUNTER_FUNCTION = time.perf_counter_ns
+THREAD_TIME_FUNCTION = time.time_ns
+TO_SECONDS_FACTOR = 1e-9
 
 THREAD_TIME = "thread"
 WALL_TIME = "wall"
 SYS_TIME = "sys"
 USER_TIME = "user"
 
-TimingDelta = namedtuple("TimingDelta", [WALL_TIME, SYS_TIME, USER_TIME])
+
+class TimingDelta(NamedTuple):
+    """Elapsed wall/system/user time for a section, all in seconds."""
+
+    wall: float
+    sys: float
+    user: float
+
+
+__all__ = [
+    "SYS_TIME",
+    "THREAD_TIME",
+    "USER_TIME",
+    "WALL_TIME",
+    "NoTimerError",
+    "TimingData",
+    "TimingDelta",
+    "Timings",
+    "cummulative_scoped_timing",
+    "function_timer",
+    "global_timings",
+    "scoped_timing",
+]
 
 
 class NoTimerError(Exception):
-    def __init__(self, section, timings=None, is_unstopped=False):
+    def __init__(self, section: str, timings: Timings | None = None, is_unstopped: bool = False) -> None:
         self.section = section
         self.timings = timings or global_timings
         self.is_unstopped = is_unstopped
         if is_unstopped:
             super().__init__(f"trying to access timer for section '{section}' that has not been stopped yet")
         else:
-            avail = "Available sections: " + ",".join(self.timings._known_timers_map.keys())
+            avail = "Available sections: " + ",".join(self.timings._known_timers_map)
             super().__init__(f"trying to access timer for unknown section '{section}'\n{avail}")
 
 
 class TimingData:
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self.name = name
         self._end_resources = None
-        self._end_times = None
+        self._end_times: dict[str, float] | None = None
         self._process = psutil.Process()
         self._start_times = self._get()
 
-    def _get(self):
+    def _get(self) -> dict[str, float]:
         ps_times = self._process.cpu_times()
         return {
             USER_TIME: ps_times.user,
@@ -68,10 +86,10 @@ class TimingData:
             THREAD_TIME: THREAD_TIME_FUNCTION(),
         }
 
-    def stop(self):
+    def stop(self) -> None:
         self._end_times = self._get()
 
-    def delta(self):
+    def delta(self) -> TimingDelta:
         delta_times = self._end_times or self._get()
 
         wall = (delta_times[WALL_TIME] - self._start_times[WALL_TIME]) * TO_SECONDS_FACTOR
@@ -83,33 +101,33 @@ class TimingData:
         )
 
 
-def _default_timer_dict_entry():
+def _default_timer_dict_entry() -> tuple[bool, TimingData | None]:
     return (False, None)
 
 
 class Timings:
-    def __init__(self):
+    def __init__(self) -> None:
         self._commited_deltas: dict[str, TimingDelta] = {}
         self._known_timers_map: dict[str, tuple[bool, TimingData | None]] = defaultdict(_default_timer_dict_entry)
-        self.extra_data = dict()
+        self.extra_data: dict = dict()
         self.reset()
 
     def start(self, section_name: str) -> None:
         """set this to begin a named section"""
-        if section_name in self._known_timers_map.keys():
+        if section_name in self._known_timers_map:
             running, _data = self._known_timers_map[section_name]
             if running:
-                # TODO log info
+                logger.info("timer for section '%s' is already running, ignoring start()", section_name)
                 return
         self._known_timers_map[section_name] = (True, TimingData(section_name))
 
-    def stop(self, section_name: str | None = None) -> int:
+    def stop(self, section_name: str | None = None) -> TimingDelta | None:
         """stop named section's counter or all of them if section_name is None"""
         if section_name is None:
-            for section in self._known_timers_map.keys():
+            for section in self._known_timers_map:
                 self.stop(section)
-            return
-        if section_name not in self._known_timers_map.keys():
+            return None
+        if section_name not in self._known_timers_map:
             raise NoTimerError(section_name, self)
         self._known_timers_map[section_name] = (
             False,
@@ -118,7 +136,7 @@ class Timings:
         timing = self._known_timers_map[section_name][1]
         timing.stop()
         delta = timing.delta()
-        if section_name not in self._commited_deltas.keys():
+        if section_name not in self._commited_deltas:
             self._commited_deltas[section_name] = delta
         else:
             previous_delta = self._commited_deltas[section_name]
@@ -129,7 +147,7 @@ class Timings:
     def reset(self, section_name: str | None = None) -> None:
         """set elapsed time back to 0 for a given section or all of them if section_name is None"""
         if section_name is None:
-            for section in self._known_timers_map.keys():
+            for section in self._known_timers_map:
                 self.reset(section)
             return
         try:
@@ -138,15 +156,15 @@ class Timings:
             pass  # not stopping no timer is not an error
         self._commited_deltas[section_name] = TimingDelta(0, 0, 0)
 
-    def walltime(self, section_name: str) -> int:
-        """get runtime of section in milliseconds"""
+    def walltime(self, section_name: str) -> float:
+        """get runtime of section in seconds"""
         return self.delta(section_name)[0]
 
-    def add_walltime(self, section_name: str, time: int) -> None:
+    def add_walltime(self, section_name: str, time: float) -> None:
         self._commited_deltas[section_name] = TimingDelta(time, 0, 0)
 
-    def delta(self, section_name: str) -> dict[str, int]:
-        """get the full delta dict"""
+    def delta(self, section_name: str) -> TimingDelta:
+        """get the full delta tuple"""
         try:
             return self._commited_deltas[section_name]
         except KeyError:
@@ -163,8 +181,8 @@ class Timings:
             self.output_all_measures(out)
         return outfile
 
-    def output_console(self):
-        """outputs walltime only w/o MPI-rank averaging"""
+    def output_console(self) -> None:
+        """output the recorded walltime per section to the console"""
         from rich import box, console, table
 
         csl = console.Console()
@@ -190,10 +208,7 @@ class Timings:
             csl.print("No timings were recorded")
 
     def output_all_measures(self, out=None) -> None:
-        """output all recorded measures
-
-        Outputs average, min, max over all MPI processes associated to mpi_comm
-        """
+        """output all recorded measures"""
         out = out or sys.stdout
         stash = StringIO()
         csv_file = csv.writer(stash, lineterminator="\n")
@@ -226,10 +241,10 @@ class Timings:
         stash.seek(0)
         shutil.copyfileobj(stash, out)
 
-    def add_extra_data(self, data: [dict]):
-        """Use this for something configuration data that makes the csv more informative.
+    def add_extra_data(self, data: dict) -> None:
+        """Use this for configuration data that makes the csv more informative.
 
-        Data is not displayed with console output.
+        The data is also rendered in the console output.
         """
         self.extra_data.update(data)
 
@@ -238,7 +253,12 @@ global_timings = Timings()
 
 
 @contextmanager
-def scoped_timing(section_name, log_function=None, timings=None, format=""):
+def scoped_timing(
+    section_name: str,
+    log_function: Callable[[str], None] | None = None,
+    timings: Timings | None = None,
+    format: str = "",
+) -> Iterator[None]:
     """Start timer on entering block scope, stop it (and optionally output) on exiting.
 
     The printout will only show walltime for the current scope.
@@ -251,7 +271,7 @@ def scoped_timing(section_name, log_function=None, timings=None, format=""):
     finally:
         try:
             previous_wall = timings.walltime(section_name)
-        except:  # noqa: E722
+        except NoTimerError:
             previous_wall = 0
         delta = timings.stop(section_name)
         if log_function:
@@ -259,7 +279,12 @@ def scoped_timing(section_name, log_function=None, timings=None, format=""):
 
 
 @contextmanager
-def cummulative_scoped_timing(section_name, log_function=None, timings=None, format=""):
+def cummulative_scoped_timing(
+    section_name: str,
+    log_function: Callable[[str], None] | None = None,
+    timings: Timings | None = None,
+    format: str = "",
+) -> Iterator[None]:
     """Start timer on entering block scope, stop it (and optionally output) on exiting.
 
     The printout will show the cummulated walltime for all scopes with this section name.
@@ -275,8 +300,12 @@ def cummulative_scoped_timing(section_name, log_function=None, timings=None, for
             log_function(f"Executing {section_name} cummulatively took {delta.wall:^{format}}s")
 
 
-def function_timer(section_name=None, log_function=None, timings=None):
-    def decorator(function):
+def function_timer(
+    section_name: str | None = None,
+    log_function: Callable[[str], None] | None = None,
+    timings: Timings | None = None,
+) -> Callable:
+    def decorator(function: Callable) -> Callable:
         @functools.wraps(function)
         def wrapper(*args, **kwargs):
             with scoped_timing(

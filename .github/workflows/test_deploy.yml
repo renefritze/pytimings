@@ -18,16 +18,16 @@ jobs:
     steps:
     - uses: actions/checkout@v6
       with:
-        # to guarantee proper versioneer pickup of last tag
+        # fetch full history so hatch-vcs can derive the version from the last tag
         fetch-depth: 0
     - name: Set up uv
       uses: astral-sh/setup-uv@v7
       with:
-        python-version: '3.12'
+        python-version: '3.13'
         enable-cache: true
     - name: Build dist artefacts
       run: |
-        uv sync --frozen --extra ci
+        uv sync --frozen --extra dev
         uv run --frozen --with build==1.4.0 -m build --sdist --wheel --outdir dist/
     - name: Publish distribution 📦 to Test PyPI
       uses: pypa/gh-action-pypi-publish@v1.14.0
