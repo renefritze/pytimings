@@ -16,7 +16,7 @@ jobs:
       url: https://test.pypi.org/p/pytimings
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         # fetch full history so hatch-vcs can derive the version from the last tag
         fetch-depth: 0
