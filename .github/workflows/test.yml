@@ -28,7 +28,7 @@ jobs:
       with:
         access_token: ${{ github.token }}
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         # fetch full history so hatch-vcs can derive the version from the last tag
         fetch-depth: 0
@@ -45,7 +45,7 @@ jobs:
     - name: run pytest
       run: uv run --frozen pytest
     - name: "Upload coverage"
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         env_vars: OS,PYTHON
         fail_ci_if_error: true
